@@ -23,6 +23,13 @@ extract_participant_id <- function(filename) {
   
 }
 
+extract_difficulty <- function(d) {
+	d$difficulty <- sub(".*v", "",d$name)
+	d$difficulty <- sub(".jpg*.", "", d$difficulty)
+	d$difficulty <- as.numeric(d$difficulty)
+	return(d)
+}
+
 #################################################
 
 #### retrieve SIBL data ####
@@ -63,7 +70,7 @@ for (f in block_files)
   		sep = "\t", header = T)
 
 	names(d) <-import_names
-	
+
 	# extract participant id number from filename
 	d$participant <- extract_participant_id(f)
 	
@@ -82,22 +89,25 @@ for (f in sine_files)
 	
 	# extract participant id number from filename
 	d$participant <- extract_participant_id(f)
-	
+	# extract difficulty 
+	d <- extract_difficulty(d)
 	# add to main dataframe
 	df = bind_rows(df, d)
 }
 
 # tidy up
 rm(d ,f, import_names)
+
+# convert things to factors
+df$targ_side <- as.factor(df$targ_side)
+df$key <- as.factor(df$key)
+df$message <- as.factor(df$message)
 df$block_type <- as.factor(df$block_type)
 
+
 #################################################################
+# this is as far as AC has checked!
 
-sidat$Difficulty = sub(".*v", "", sidat$Name)
-sidat$Difficulty = sub(".jpg*.", "", sidat$Difficulty)
-
-# combine data
-SIBL_data <- rbind(sidat,bldat)
 
 # add site information
 SIBL_data$participant <- as.numeric(SIBL_data$participant)
