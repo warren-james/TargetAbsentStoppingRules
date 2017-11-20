@@ -41,7 +41,7 @@ df <- tibble(
     rt = numeric(), 
     message = character(), 
     difficulty = numeric(),
-    block_yype = character())
+    block_type = character())
 
 import_names <- c(
 	"trial", 
@@ -60,7 +60,7 @@ for (f in block_files)
 {
   	d <- read.csv(
   		paste("../data/BLSI/Block/", f, sep=""), 
-  		sep = "\t", hader = T)
+  		sep = "\t", header = T)
 
 	names(d) <-import_names
 	
@@ -89,7 +89,9 @@ for (f in sine_files)
 
 # tidy up
 rm(d ,f, import_names)
+df$block_type <- as.factor(df$block_type)
 
+#################################################################
 
 sidat$Difficulty = sub(".*v", "", sidat$Name)
 sidat$Difficulty = sub(".jpg*.", "", sidat$Difficulty)
