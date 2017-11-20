@@ -17,10 +17,10 @@ shift <- function(x,n){
 
 
 extract_participant_id <- function(filename) {
-	participant <- sub(".*bl", "", filename)
+	#participant <- sub(".*bl", "", filename)
+  participant <- substring(filename, 3)
   participant <- sub(".dat*.", "", participant)
   return(participant)
-  
 }
 
 extract_difficulty <- function(d) {
@@ -98,17 +98,18 @@ for (f in sine_files)
 # tidy up
 rm(d ,f, import_names)
 
+# add site information
+df$site <- "Aberdeen"
+df$site[df$participant > 20] <- "Essex"
+
+
 # convert things to factors
-df$participant <- as.numeric(df$participant)
+df$participant <- as.factor(df$participant)
 df$targ_side <- as.factor(df$targ_side)
 df$key <- as.factor(df$key)
 df$message <- as.factor(df$message)
 df$block_type <- as.factor(df$block_type)
 
-
-# add site information
-df$site <- "Aberdeen"
-df$site[df$participant > 20] <- "Essex"
 
 # add participant group info
 df$group <- "SIBL"
@@ -117,72 +118,106 @@ df$group <- "SIBL"
 rm(block_files,sine_files)
 
 #################################################################
-# this is as far as AC has checked!
+#### this is as far as AC has checked! ####
 
 
 
 #### retrieve RABL data ####
-blockFiles2 <- dir("data/BLRA/Block/")
+block_files <- dir("../data/BLRA/Block/")
 
-randomFiles <- dir("data/BLRA/Random/")
+random_files <- dir("../data/BLRA/Random/")
 
 
-df <- data.frame(participant=character(), trial=numeric(), block=numeric(),
-                 Target_pr=numeric(), Targ_side=numeric(), Name=character(),
-                 key=character(), RT=numeric(), Message=character(), Difficulty=numeric(),
-                 Block_Type=character())
+df2 <- tibble(
+  participant = character(), 
+  trial = numeric(), 
+  block = numeric(),
+  targ_pr = numeric(), 
+  targ_side = character(), 
+  name = character(),
+  key = character(), 
+  rt = numeric(), 
+  message = character(), 
+  difficulty = numeric(),
+  block_type = character())
 
 # make the blocked data set #
-bldat2 <- df
 
-for (f in blockFiles2)
+import_names <- c(
+  "trial", 
+  "block", 
+  "targ_pr", 
+  "targ_side", 
+  "name", 
+  "key", 
+  "rt", 
+  "message", 
+  "difficulty", 
+  "block_type")
+
+
+for (f in block_files)
 {
-  d = read.csv(paste("data/BLRA/Block/", f, sep=""), sep = "\t", header = T)
-  names(d) = c("trial", "block", "Target_pr", "Target_side", "Name", "key", "RT", "Message", "Difficulty", "Block_Type")
-  d$participant = f
-  d$participant = sub(".*bl", "", d$participant)
-  d$participant = sub(".dat*.", "", d$participant)
-  bldat2 = rbind(bldat2, d)
+  d <- read.csv(
+    paste("../data/BLRA/Block/", f, sep=""), 
+    sep = "\t", header = T)
+  
+  names(d) <-import_names
+  
+  # extract participant id number from filename
+  d$participant <- extract_participant_id(f)
+  
+  # add to main dataframe
+  df2 = bind_rows(df2, d)
 }
-rm(d)
 
-# makes the random dataset #
-radat <- df
 
-for (f in randomFiles)
+for (f in random_files)
 {
-  d = read.csv(paste("data/BLRA/Random/", f, sep=""), sep = "\t", header = T)
-  names(d) = c("trial", "block", "Target_pr", "Target_side", "Name", "key", "RT", "Message", "Difficulty", "Block_Type")
-  d$participant = f
-  d$participant = sub(".*ra", "", d$participant)
-  d$participant = sub(".dat*.", "", d$participant)
-  radat = rbind(radat, d)
+  d = read.csv(
+    paste("../data/BLRA/Random/", f, sep=""), 
+    sep = "\t", header = T)
+  
+  names(d) <-import_names
+  
+  # extract participant id number from filename
+  d$participant <- extract_participant_id(f)
+  # extract difficulty 
+  d <- extract_difficulty(d)
+  # add to main dataframe
+  df2 = bind_rows(df2, d)
 }
-rm(d)
-rm(df)
-
-radat$Difficulty = sub(".*v", "", radat$Name)
-radat$Difficulty = sub(".jpg*.", "", radat$Difficulty)
-
-RABL_data <- rbind(bldat2,radat)
-
-RABL_data$Group <- "RABL"
 
 # tidy up
-rm(radat,bldat2,blockFiles2,randomFiles,f)
+rm(d ,f, import_names)
 
-# prevent overlapping and add site info
-RABL_data$participant <- as.numeric(RABL_data$participant)
-RABL_data$site <- "Aberdeen"
-RABL_data$site[RABL_data$participant > 20] <- "Essex"
-RABL_data$participant <- RABL_data$participant + 20
+# add site information
+df2$site <- "Aberdeen"
+df2$site[df2$participant > 20] <- "Essex"
+
+# stop participant numbers overlapping 
+df2$participant <- as.numeric(df2$participant) + 20
+
+# convert things to factors
+df2$participant <- as.factor(df2$participant)
+df2$targ_side <- as.factor(df2$targ_side)
+df2$key <- as.factor(df2$key)
+df2$message <- as.factor(df2$message)
+df2$block_type <- as.factor(df2$block_type)
 
 
+# add participant group info
+df2$group <- "RABL"
 
+# merge datasets 
+df <- rbind(df,df2)
 
+#tidy up again
+rm(block_files,random_files, df2)
 
-#### combine all data into one set ####
-all_data <- rbind(SIBL_data,RABL_data)
+#####################################################################################
+#### checked until here WJ ####
+# pretty sure everything works above here, below may be a different story...
 
 # get informtation about correct judgements 
 all_data$correctT <- 0 
@@ -244,6 +279,7 @@ for(Subject in people){
 }
 rm(data_this_block)
 rm(data_this_sub)
+
 
 
 
