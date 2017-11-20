@@ -1,5 +1,7 @@
 library(tidyverse)
 
+# run after the SIBL script, it you change directory then use setwd("..") 
+
 #### pre-processing script for the RABL data ####
 
 # notes #
@@ -10,6 +12,7 @@ library(tidyverse)
 shift <- function(x,n){
   c(rep(NA, n),x[seq(length(x)-n)])
 }
+
 
 # set up resultsFiles # 
 blockFiles <- dir("data/BLRA/Block/")

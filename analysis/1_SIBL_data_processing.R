@@ -11,6 +11,9 @@ shift <- function(x,n){
   c(rep(NA, n),x[seq(length(x)-n)])
 }
 
+#move up a directory 
+setwd("..")
+
 # set up resultsFiles # 
 blockFiles <- dir("data/BLSI/Block/")
 
