@@ -1,60 +1,95 @@
 library(tidyverse)
 
+#################################################
 #### pre-processing script for the SIBL data ####
 
 # notes #
 # key l = present 
 # key r = absent
+#################################################
 
 # Shift function #
+
+# WHAT IS THIS USED FOR?
 shift <- function(x,n){
   c(rep(NA, n),x[seq(length(x)-n)])
 }
 
-#move up a directory 
-setwd("..")
 
+extract_participant_id <- function(filename) {
+	participant <- sub(".*bl", "", filename)
+  participant <- sub(".dat*.", "", participant)
+  return(participant)
+  
+}
 
+#################################################
 
 #### retrieve SIBL data ####
-blockFiles <- dir("data/BLSI/Block/")
+block_files <- dir("../data/BLSI/Block/")
+sine_files  <- dir("../data/BLSI/Sine/")
 
-sineFiles <- dir("data/BLSI/Sine/")
+# create empty data.frame for data
+df <- tibble(
+	participant = character(), 
+	trial = numeric(), 
+	block = numeric(),
+    targ_pr = numeric(), 
+    targ_side = character(), 
+    name = character(),
+    key = character(), 
+    rt = numeric(), 
+    message = character(), 
+    difficulty = numeric(),
+    block_yype = character())
+
+import_names <- c(
+	"trial", 
+	"block", 
+	"targ_pr", 
+	"targ_side", 
+	"name", 
+	"key", 
+	"rt", 
+	"message", 
+	"difficulty", 
+	"block_type")
 
 
-df <- data.frame(participant=character(), trial=numeric(), block=numeric(),
-                 Target_pr=numeric(), Targ_side=numeric(), Name=character(),
-                 key=character(), RT=numeric(), Message=character(), Difficulty=numeric(),
-                 Block_Type=character())
-
-# make the blocked data set #
-bldat <- df
-
-for (f in blockFiles)
+for (f in block_files)
 {
-  d = read.csv(paste("data/BLSI/Block/", f, sep=""), sep = "\t", header = T)
-  names(d) = c("trial", "block", "Target_pr", "Target_side", "Name", "key", "RT", "Message", "Difficulty", "Block_Type")
-  d$participant = f
-  d$participant = sub(".*bl", "", d$participant)
-  d$participant = sub(".dat*.", "", d$participant)
-  bldat = rbind(bldat, d)
+  	d <- read.csv(
+  		paste("../data/BLSI/Block/", f, sep=""), 
+  		sep = "\t", hader = T)
+
+	names(d) <-import_names
+	
+	# extract participant id number from filename
+	d$participant <- extract_participant_id(f)
+	
+	# add to main dataframe
+	df = bind_rows(df, d)
 }
-rm(d)
 
-# makes the sine dataset #
-sidat <- df
 
-for (f in sineFiles)
+for (f in sine_files)
 {
-  d = read.csv(paste("data/BLSI/sine/", f, sep=""), sep = "\t", header = T)
-  names(d) = c("trial", "block", "Target_pr", "Target_side", "Name", "key", "RT", "Message", "Difficulty", "Block_Type")
-  d$participant = f
-  d$participant = sub(".*si", "", d$participant)
-  d$participant = sub(".dat*.", "", d$participant)
-  sidat = rbind(sidat, d)
+	d = read.csv(
+  		paste("../data/BLSI/sine/", f, sep=""), 
+  		sep = "\t", header = T)
+	
+	names(d) <-import_names
+	
+	# extract participant id number from filename
+	d$participant <- extract_participant_id(f)
+	
+	# add to main dataframe
+	df = bind_rows(df, d)
 }
-rm(d)
-rm(df)
+
+# tidy up
+rm(d ,f, import_names)
+
 
 sidat$Difficulty = sub(".*v", "", sidat$Name)
 sidat$Difficulty = sub(".jpg*.", "", sidat$Difficulty)
