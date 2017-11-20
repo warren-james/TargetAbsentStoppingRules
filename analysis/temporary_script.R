@@ -99,27 +99,25 @@ for (f in sine_files)
 rm(d ,f, import_names)
 
 # convert things to factors
+df$participant <- as.numeric(df$participant)
 df$targ_side <- as.factor(df$targ_side)
 df$key <- as.factor(df$key)
 df$message <- as.factor(df$message)
 df$block_type <- as.factor(df$block_type)
 
 
-#################################################################
-# this is as far as AC has checked!
-
-
 # add site information
-SIBL_data$participant <- as.numeric(SIBL_data$participant)
-SIBL_data$site <- "Aberdeen"
-SIBL_data$site[SIBL_data$participant > 20] <- "Essex"
+df$site <- "Aberdeen"
+df$site[df$participant > 20] <- "Essex"
 
-SIBL_data$Group <- "SIBL"
+# add participant group info
+df$group <- "SIBL"
 
 # tidy
-rm(bldat,sidat,blockFiles,sineFiles)
+rm(block_files,sine_files)
 
-
+#################################################################
+# this is as far as AC has checked!
 
 
 
