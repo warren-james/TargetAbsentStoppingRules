@@ -2,7 +2,6 @@ library(tidyverse)
 
 #################################################
 #### pre-processing script for the SIBL data ####
-
 # notes #
 # key l = present 
 # key r = absent
@@ -14,7 +13,6 @@ library(tidyverse)
 shift <- function(x,n){
   c(rep(NA, n),x[seq(length(x)-n)])
 }
-
 
 extract_participant_id <- function(filename) {
 	#participant <- sub(".*bl", "", filename)
@@ -31,14 +29,13 @@ extract_difficulty <- function(d) {
 }
 
 #################################################
-
-#### retrieve SIBL data ####
-block_files <- dir("../data/BLSI/Block/")
-sine_files  <- dir("../data/BLSI/Sine/")
+# first, read in raw data to df
+#################################################
 
 # create empty data.frame for data
 df <- tibble(
 	participant = character(), 
+	group = character(),
 	trial = numeric(), 
 	block = numeric(),
     targ_pr = numeric(), 
@@ -62,9 +59,12 @@ import_names <- c(
 	"difficulty", 
 	"block_type")
 
+#### retrieve SIBL data #####
+block_files <- dir("../data/BLSI/Block/")
+sine_files  <- dir("../data/BLSI/Sine/")
 
-for (f in block_files)
-{
+#  read in files
+for (f in block_files) {
   	d <- read.csv(
   		paste("../data/BLSI/Block/", f, sep=""), 
   		sep = "\t", header = T)
@@ -74,13 +74,14 @@ for (f in block_files)
 	# extract participant id number from filename
 	d$participant <- extract_participant_id(f)
 	
+	# assign group factor
+	d$group = "SIBL"
+
 	# add to main dataframe
 	df = bind_rows(df, d)
 }
 
-
-for (f in sine_files)
-{
+for (f in sine_files) {
 	d = read.csv(
   		paste("../data/BLSI/sine/", f, sep=""), 
   		sep = "\t", header = T)
@@ -89,131 +90,89 @@ for (f in sine_files)
 	
 	# extract participant id number from filename
 	d$participant <- extract_participant_id(f)
+
 	# extract difficulty 
 	d <- extract_difficulty(d)
+
+	# assign group factor
+	d$group = "SIBL"	
+
+	# add to main dataframe
+	df = bind_rows(df, d)
+}
+
+#### retrieve RABL data ####
+block_files <- dir("../data/BLRA/Block/")
+random_files <- dir("../data/BLRA/Random/")
+
+for (f in block_files) {
+	d <- read.csv(
+    	paste("../data/BLRA/Block/", f, sep=""), 
+    	sep = "\t", header = T)
+  
+	names(d) <-import_names
+  
+	# extract participant id number from filename
+	d$participant <- extract_participant_id(f)
+  
+	# assign group factor
+	d$group = "RABL"
+
+	# add to main dataframe
+	df = bind_rows(df, d)
+}
+
+for (f in random_files) {
+	d = read.csv(
+    	paste("../data/BLRA/Random/", f, sep=""), 
+    	sep = "\t", header = T)
+  
+	names(d) <-import_names
+  
+	# extract participant id number from filename
+	d$participant <- extract_participant_id(f)
+	
+	# extract difficulty 
+	d <- extract_difficulty(d)
+	
+	# assign group factor
+	d$group = "RABL"
+
 	# add to main dataframe
 	df = bind_rows(df, d)
 }
 
 # tidy up
-rm(d ,f, import_names)
+rm(d ,f, import_names, block_files,sine_files)
+
+#################################################
+# now fix a few minor quirks in the data
+#################################################
 
 # add site information
 df$site <- "Aberdeen"
 df$site[df$participant > 20] <- "Essex"
 
+# recode participant numbers to make them all unique
+pID <- as.factor(paste(df$participant, df$group))
+levels(pID) <- seq(1, length(levels(pID)))
+df$participant <- pID
+rm(pID)
 
 # convert things to factors
-df$participant <- as.factor(df$participant)
 df$targ_side <- as.factor(df$targ_side)
 df$key <- as.factor(df$key)
 df$message <- as.factor(df$message)
 df$block_type <- as.factor(df$block_type)
 
 
-# add participant group info
-df$group <- "SIBL"
 
-# tidy
-rm(block_files,sine_files)
 
 #################################################################
 #### this is as far as AC has checked! ####
 
 
 
-#### retrieve RABL data ####
-block_files <- dir("../data/BLRA/Block/")
-
-random_files <- dir("../data/BLRA/Random/")
-
-
-df2 <- tibble(
-  participant = character(), 
-  trial = numeric(), 
-  block = numeric(),
-  targ_pr = numeric(), 
-  targ_side = character(), 
-  name = character(),
-  key = character(), 
-  rt = numeric(), 
-  message = character(), 
-  difficulty = numeric(),
-  block_type = character())
-
-# make the blocked data set #
-
-import_names <- c(
-  "trial", 
-  "block", 
-  "targ_pr", 
-  "targ_side", 
-  "name", 
-  "key", 
-  "rt", 
-  "message", 
-  "difficulty", 
-  "block_type")
-
-
-for (f in block_files)
-{
-  d <- read.csv(
-    paste("../data/BLRA/Block/", f, sep=""), 
-    sep = "\t", header = T)
-  
-  names(d) <-import_names
-  
-  # extract participant id number from filename
-  d$participant <- extract_participant_id(f)
-  
-  # add to main dataframe
-  df2 = bind_rows(df2, d)
-}
-
-
-for (f in random_files)
-{
-  d = read.csv(
-    paste("../data/BLRA/Random/", f, sep=""), 
-    sep = "\t", header = T)
-  
-  names(d) <-import_names
-  
-  # extract participant id number from filename
-  d$participant <- extract_participant_id(f)
-  # extract difficulty 
-  d <- extract_difficulty(d)
-  # add to main dataframe
-  df2 = bind_rows(df2, d)
-}
-
-# tidy up
-rm(d ,f, import_names)
-
-# add site information
-df2$site <- "Aberdeen"
-df2$site[df2$participant > 20] <- "Essex"
-
-# stop participant numbers overlapping 
-df2$participant <- as.numeric(df2$participant) + 20
-
-# convert things to factors
-df2$participant <- as.factor(df2$participant)
-df2$targ_side <- as.factor(df2$targ_side)
-df2$key <- as.factor(df2$key)
-df2$message <- as.factor(df2$message)
-df2$block_type <- as.factor(df2$block_type)
-
-
-# add participant group info
-df2$group <- "RABL"
-
-# merge datasets 
-df <- rbind(df,df2)
-
-#tidy up again
-rm(block_files,random_files, df2)
 
 #####################################################################################
 #### checked until here WJ ####
