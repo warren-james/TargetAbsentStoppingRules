@@ -28,6 +28,10 @@ extract_difficulty <- function(d) {
 	return(d)
 }
 
+get_degrees <- function(x){
+	((pi/x)*180)/(pi)
+}
+
 #################################################
 # first, read in raw data to df
 #################################################
@@ -175,67 +179,45 @@ df$group = as.factor(df$group)
 df$site <- as.factor(df$site)
 
 # change Difficulty levels to the actual degree of variance #
-df$difficulty[df$difficulty == 1.5] <- 120
-df$difficulty[df$difficulty == 1.8] <- 100
-df$difficulty[df$difficulty == 2.3] <- 78
-df$difficulty[df$difficulty == 2.8] <- 64
-df$difficulty[df$difficulty == 3.3] <- 54
-df$difficulty[df$difficulty == 3.8] <- 47
-df$difficulty[df$difficulty == 4.3] <- 41
-
+df$difficulty <- get_degrees(df$difficulty)
 
 # get information about correct judgements 
 df$correct <- 0 
 df$correct[df$key == "l" & df$targ_pr == 1] <- 1 
 df$correct[df$key == "r" & df$targ_pr == 0] <- 1
 
-
-
-#################################################################
-
 # mark trials to be removed due to incorrect key press 
 df$rt[df$key == "x"] <- NA
 
+#################################################################
+# extract previous rt and accuracy
+#################################################################
 
-#### add in PRT #### 
+df$p_rt = NA
+df$p_correct = NA
 
-# this didn't work unique(all_data[c("block","Block_Type")])
-people <- seq(max(as.numeric(all_data$participant))) #This will need to be changed to the total number of participants...
-count = 0 
-n_to_shift <- 1
+for (person in levels(df$participant)) {
+	for (blk in unique(df$block)) {
+		# extract subset for person:block
+		d <- filter(df, participant == person, block == blk)
+		
+		# add in previous reaction time 
+		d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
+		# add in previous correct
+		d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
 
-for(Subject in people){
-  
-  data_this_sub <- all_data[all_data$participant == Subject,]
-  nblocks <- unique(all_data$block)
-  for (block_no in nblocks){
-    
-    count = count + 1 #just so we can ID the first time we run this - must be a better way than this
-    
-    data_this_block <- data_this_sub[data_this_sub$block == block_no,] #separates each block
-    
-    data_this_block$PRT <- shift(data_this_block$RT,n_to_shift)
-    
-    data_this_block <- data_this_block[-seq(n_to_shift),] #removes first n_to_shift trials in block
-    
-    
-    
-    if (count == 1)
-    {
-      all_data_with_PRT_bl <- data_this_block #same as before, makes new data set
-    }
-    if (count > 1)
-    {
-      all_data_with_PRT_bl <- rbind(all_data_with_PRT_bl,data_this_block)
-    }
-    
-  }
+		# add back into main dataframe
+		d[which(df$participant == person & df$block == blk),] <- d
+
+		rm(d)
+	}
 }
-rm(data_this_block)
-rm(data_this_sub)
 
+rm(person, blk)
 
-
+#################################################################
+# save processed data!
+#################################################################
 
 # keep needed columns 
 df <- select(df, 
@@ -252,5 +234,4 @@ df <- select(df,
 	group)
 
 # save processed data file!
-
-
+save(df, file = "scratch/processed_data.rda")
