@@ -159,48 +159,43 @@ levels(pID) <- seq(1, length(levels(pID)))
 df$participant <- pID
 rm(pID)
 
-# convert things to factors
+# convert things to factors and remove white space from names
 df$targ_side <- as.factor(df$targ_side)
-df$key <- as.factor(df$key)
-df$message <- as.factor(df$message)
-df$block_type <- as.factor(df$block_type)
+levels(df$targ_side) <- c("left", "right", "absent")
 
+df$key <- as.factor(df$key)
+levels(df$key) <- c("l", "r", "x")
+
+df$message <- as.factor(df$message)
+
+df$block_type <- as.factor(df$block_type)
+levels(df$block_type) <- c("blocked", "random", "sinewave")
+
+df$group = as.factor(df$group)
+df$site <- as.factor(df$site)
+
+# change Difficulty levels to the actual degree of variance #
+df$difficulty[df$difficulty == 1.5] <- 120
+df$difficulty[df$difficulty == 1.8] <- 100
+df$difficulty[df$difficulty == 2.3] <- 78
+df$difficulty[df$difficulty == 2.8] <- 64
+df$difficulty[df$difficulty == 3.3] <- 54
+df$difficulty[df$difficulty == 3.8] <- 47
+df$difficulty[df$difficulty == 4.3] <- 41
+
+
+# get information about correct judgements 
+df$correct <- 0 
+df$correct[df$key == "l" & df$targ_pr == 1] <- 1 
+df$correct[df$key == "r" & df$targ_pr == 0] <- 1
 
 
 
 #################################################################
-#### this is as far as AC has checked! ####
-
-
-
-
-#####################################################################################
-#### checked until here WJ ####
-# pretty sure everything works above here, below may be a different story...
-
-# get informtation about correct judgements 
-all_data$correctT <- 0 
-all_data$correctT[all_data$key == " l" & all_data$Target_pr == 1] <- 1 
-all_data$correctT[all_data$key == " r" & all_data$Target_pr == 0] <- 1
-
-# change Difficulty levels to the actual degree of variance #
-all_data$Difficulty[all_data$Difficulty == 1.5] <- 120
-all_data$Difficulty[all_data$Difficulty == 1.8] <- 100
-all_data$Difficulty[all_data$Difficulty == 2.3] <- 78
-all_data$Difficulty[all_data$Difficulty == 2.8] <- 64
-all_data$Difficulty[all_data$Difficulty == 3.3] <- 54
-all_data$Difficulty[all_data$Difficulty == 3.8] <- 47
-all_data$Difficulty[all_data$Difficulty == 4.3] <- 41
-
-# keep needed columns 
-all_data <- select(all_data, "participant", "Block_Type", "block", "trial", "Target_pr", "key", "Difficulty", "correctT", "RT", "site", "Group")
 
 # mark trials to be removed due to incorrect key press 
-all_data$RT[all_data$key == " x"] <- NA
+df$rt[df$key == "x"] <- NA
 
-# sort out participants so they're numbered correctly 
-temp <- all_data
-temp$participant <- as.factor(temp$participant)
 
 #### add in PRT #### 
 
@@ -241,5 +236,21 @@ rm(data_this_sub)
 
 
 
+
+# keep needed columns 
+df <- select(df, 
+	participant, 
+	block_type, 
+	block, 
+	trial, 
+	targ_pr, 
+	key, 
+	difficulty, 
+	correct, 
+	rt, 
+	site, 
+	group)
+
+# save processed data file!
 
 
