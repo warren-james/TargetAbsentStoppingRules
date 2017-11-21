@@ -147,7 +147,7 @@ for (f in random_files) {
 }
 
 # tidy up
-rm(d ,f, import_names, block_files,sine_files)
+rm(d ,f, import_names, block_files,sine_files,random_files,shift)
 
 #################################################
 # now fix a few minor quirks in the data
@@ -207,7 +207,7 @@ for (person in levels(df$participant)) {
 		d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
 
 		# add back into main dataframe
-		d[which(df$participant == person & df$block == blk),] <- d
+		df[which(df$participant == person & df$block == blk),] <- d
 
 		rm(d)
 	}
@@ -230,6 +230,8 @@ df <- select(df,
 	difficulty, 
 	correct, 
 	rt, 
+	p_rt,
+	p_correct,
 	site, 
 	group)
 
