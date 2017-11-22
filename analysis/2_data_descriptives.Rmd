@@ -1,14 +1,17 @@
 ---
 title: "Target Absent Stopping Rules descriptives"
 output: pdf_document
+fig_height: 4
+fig_width: 6
 ---
 
 ```{r setup, include=FALSE}
 library(tidyverse)
 load("scratch/processed_data.rda")
+knitr::opts_chunk$set(fig.width=12, fig.height=6.5) 
 ```
 
-```{r, include=FALSE}
+```{r calculate no. trials, include=FALSE}
 total_observations <- length(df$rt)
 
 # get average number of trials 
@@ -17,7 +20,7 @@ number_of_trials <- summarise(temp, num_trials = length(rt))
 rm(temp)
 ```
 
-``` {r}
+``` {r display numbers for no. trials}
 total_observations
 
 trials_per_participant = mean(number_of_trials$num_trials)
@@ -27,10 +30,11 @@ Each participant carried out 50 trials for each difficulty and in both condition
 
 The rt values in these were replaced with NA as the wrong key had been pressed. Also, as we were interested in looking at the influence of previous rt's we also removed the first trial from each block as this trial had no previous trial information. 
 
-Prior to removing these trials, there were 41222 trials across participants. After removing cases with NA values, we were left with 39656 trials across all participants (about 96% of the data). On average, this left participants with 44 trials per block, condition, and difficulty.
+Prior to removing these trials, there were 41222 trials across participants. After removing cases with NA values, we were left with 39238 trials across all participants (about 95% of the data). On average, this left participants with 44 trials per block, condition, and difficulty.
 
-```{r, include=FALSE}
+```{r remove rows containg NA, include=FALSE}
 df <- df[complete.cases(df),]
+
 total_observations_nar <- length(df$rt)
 
 temp <- group_by(df, participant,block_type,block,group)
@@ -40,12 +44,45 @@ rm(temp)
 trials_per_participant_nar <- mean(number_of_trials$num_trials)
 ```
 
-```{r}
+```{r show new numbers}
 total_observations_nar
 trials_per_participant_nar
+```
+We can also plot how many participants carried out "x" amount of trials per block. This plot can be seen below as well as a plot containing information about how many trials in total were carried out and how many participants had this many total trials. 
+
+``` {r make trials per participant:block graph, include=FALSE}
+trials_per_block_plt = ggplot(number_of_trials, aes(num_trials))
+trials_per_block_plt = trials_per_block_plt + geom_bar()
+trials_per_block_plt = trials_per_block_plt + xlab("Number of trials")
+trials_per_block_plt = trials_per_block_plt + ylab("No. participants")
+
+```
+```{r make trials per participant total graph, include = FALSE}
+temp <- group_by(df, participant,block_type,group)
+number_of_trials_2 <- summarise(temp, num_trials = length(rt))
+rm(temp)
+
+trials_total_plt = ggplot(number_of_trials_2, aes(num_trials))
+trials_total_plt = trials_total_plt + geom_bar()
+trials_total_plt = trials_total_plt + xlab("Number of trials")
+trials_total_plt = trials_total_plt + ylab("No. participants")
+
+```
+
+```{r show graphs}
+trials_per_block_plt
+trials_total_plt
+```
+
+``` {r get summary stats, include=FALSE}
+
 ```
 
 
 
 
-
+``` {r creat save file}
+# Save only the new data frame
+# run just the once
+# save(df, file = "scratch/processed_data_nar.rda")
+````
