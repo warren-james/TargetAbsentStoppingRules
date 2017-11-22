@@ -197,23 +197,25 @@ df$p_rt = NA
 df$p_correct = NA
 
 for (person in levels(df$participant)) {
-	for (blk in unique(df$block)) {
-		# extract subset for person:block
-		d <- filter(df, participant == person, block == blk)
-		
-		# add in previous reaction time 
-		d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
-		# add in previous correct
-		d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
-
-		# add back into main dataframe
-		df[which(df$participant == person & df$block == blk),] <- d
-
-		rm(d)
-	}
+  for (bt in levels(df$block_type)) {
+    for (blk in unique(df$block)) {
+      # extract subset for person:block
+      d <- filter(df, participant == person, block == blk)
+      
+      # add in previous reaction time 
+      d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
+      # add in previous correct
+      d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
+      
+      # add back into main dataframe
+      df[which(df$participant == person & df$block == blk & df$block_type == bt),] <- d
+      
+      rm(d)
+    }
+  }
 }
 
-rm(person, blk)
+rm(person, blk,bt)
 
 #################################################################
 # save processed data!

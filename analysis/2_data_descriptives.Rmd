@@ -1,0 +1,51 @@
+---
+title: "Target Absent Stopping Rules descriptives"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+load("scratch/processed_data.rda")
+```
+
+```{r, include=FALSE}
+total_observations <- length(df$rt)
+
+# get average number of trials 
+temp <- group_by(df, participant,block_type,block,group)
+number_of_trials <- summarise(temp, num_trials = length(rt))
+rm(temp)
+```
+
+``` {r}
+total_observations
+
+trials_per_participant = mean(number_of_trials$num_trials)
+trials_per_participant
+```
+Each participant carried out 50 trials for each difficulty and in both conditions they took part in. Some responses were removed as participants pressed the wrong key.
+
+The rt values in these were replaced with NA as the wrong key had been pressed. Also, as we were interested in looking at the influence of previous rt's we also removed the first trial from each block as this trial had no previous trial information. 
+
+Prior to removing these trials, there were 41222 trials across participants. After removing cases with NA values, we were left with 39656 trials across all participants (about 96% of the data). On average, this left participants with 44 trials per block, condition, and difficulty.
+
+```{r, include=FALSE}
+df <- df[complete.cases(df),]
+total_observations_nar <- length(df$rt)
+
+temp <- group_by(df, participant,block_type,block,group)
+number_of_trials <- summarise(temp, num_trials = length(rt))
+rm(temp)
+
+trials_per_participant_nar <- mean(number_of_trials$num_trials)
+```
+
+```{r}
+total_observations_nar
+trials_per_participant_nar
+```
+
+
+
+
+
