@@ -1,11 +1,10 @@
 library(tidyverse)
 
-#################################################
-#### pre-processing script for the SIBL data ####
+#### pre-processing script for the data ####
 # notes #
 # key l = present 
 # key r = absent
-#################################################
+
 
 # Shift function #
 
@@ -32,9 +31,9 @@ get_degrees <- function(x){
 	((pi/x)*180)/(pi)
 }
 
-#################################################
-# first, read in raw data to df
-#################################################
+
+#### first, read in raw data to df ####
+
 
 # create empty data.frame for data
 df <- tibble(
@@ -105,6 +104,7 @@ for (f in sine_files) {
 	df = bind_rows(df, d)
 }
 
+
 #### retrieve RABL data ####
 block_files <- dir("../data/BLRA/Block/")
 random_files <- dir("../data/BLRA/Random/")
@@ -149,9 +149,9 @@ for (f in random_files) {
 # tidy up
 rm(d ,f, import_names, block_files,sine_files,random_files,shift)
 
-#################################################
-# now fix a few minor quirks in the data
-#################################################
+
+#### now fix a few minor quirks in the data ####
+
 
 # add site information
 df$site <- "Aberdeen"
@@ -189,37 +189,46 @@ df$correct[df$key == "r" & df$targ_pr == 0] <- 1
 # mark trials to be removed due to incorrect key press 
 df$rt[df$key == "x"] <- NA
 
-#################################################################
-# extract previous rt and accuracy
-#################################################################
+
+#### extract previous rt and accuracy ####
+
 
 df$p_rt = NA
 df$p_correct = NA
 
-for (person in levels(df$participant)) {
-  for (bt in levels(df$block_type)) {
-    for (blk in unique(df$block)) {
-      # extract subset for person:block
-      d <- filter(df, participant == person, block == blk)
-      
-      # add in previous reaction time 
-      d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
-      # add in previous correct
-      d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
-      
-      # add back into main dataframe
-      df[which(df$participant == person & df$block == blk & df$block_type == bt),] <- d
-      
-      rm(d)
+for (g in levels(df$group)) {
+  for  (person in unique(df$participant[df$group == g])){
+    for (bt in unique(df$block_type[df$group == g])) {
+      for (blk in unique(df$block)) {
+        # extract subset for person:block
+        d <- filter(df, participant == person, block == blk, block_type == bt, group == g)
+        if (nrow(d) > 0) {
+          # add in previous reaction time 
+          d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
+          # add in previous correct
+          d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
+            
+          # add back into main dataframe
+          df[which(df$participant == person & df$group == g & df$block_type == bt & df$block == blk),] <- d
+            
+          rm(d)
+            
+        } else {
+          rm(d)
+        }
+      }
     }
   }
 }
 
-rm(person, blk,bt)
 
-#################################################################
-# save processed data!
-#################################################################
+
+
+rm(person, blk, bt, g)
+
+
+#### save processed data! ####
+
 
 # keep needed columns 
 df <- select(df, 
