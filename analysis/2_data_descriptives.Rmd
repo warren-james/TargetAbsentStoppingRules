@@ -11,6 +11,18 @@ load("scratch/processed_data.rda")
 knitr::opts_chunk$set(fig.width=12, fig.height=6.5) 
 ```
 
+``` {r round the difficulty numbers to one decimal place, include=FALSE}
+df$difficulty <- round(df$difficulty, digits = 1)
+```
+
+```{r remove the Essex SIBL data, include=FALSE}
+toberemoved <- which(df$site == "Essex" & df$ group == "SIBL")
+df <- df[-toberemoved,]
+
+rm(toberemoved)
+```
+
+
 ```{r calculate no. trials, include=FALSE}
 total_observations <- length(df$rt)
 
@@ -26,11 +38,6 @@ total_observations
 trials_per_participant = mean(number_of_trials$num_trials)
 trials_per_participant
 ```
-Each participant carried out 50 trials for each difficulty and in both conditions they took part in. Some responses were removed as participants pressed the wrong key.
-
-The rt values in these were replaced with NA as the wrong key had been pressed. Also, as we were interested in looking at the influence of previous rt's we also removed the first trial from each block as this trial had no previous trial information. 
-
-Prior to removing these trials, there were 41222 trials across participants. After removing cases with NA values, we were left with 39238 trials across all participants (about 95% of the data). On average, this left participants with 44 trials per block, condition, and difficulty.
 
 ```{r remove rows containg NA, include=FALSE}
 df <- df[complete.cases(df),]
@@ -42,7 +49,20 @@ number_of_trials <- summarise(temp, num_trials = length(rt))
 rm(temp)
 
 trials_per_participant_nar <- mean(number_of_trials$num_trials)
+
+percent_remaining <- round((total_observations_nar/total_observations)*100)
 ```
+
+
+
+Data collect from Essex for the SIBL group was removed as this data had some issues with block length and also the presence of a "difficulty" level that wasn't included in the study as it was deemed too difficult. 
+
+Each participant carried out 50 trials for each difficulty and in both conditions they took part in. Some responses were removed as participants pressed the wrong key.
+
+The rt values in these were replaced with NA as the wrong key had been pressed. Also, as we were interested in looking at the influence of previous rt's we also removed the first trial from each block as this trial had no previous trial information. 
+
+Prior to removing these trials, there were `r total_observations` trials across participants. After removing cases with NA values, we were left with `r total_observations_nar` trials across all participants (about `r percent_remaining`% of the data). On average, this left participants with `r round(trials_per_participant_nar)` trials per block, condition, and difficulty.
+
 
 ```{r show new numbers}
 total_observations_nar
@@ -57,6 +77,7 @@ trials_per_block_plt = trials_per_block_plt + xlab("Number of trials")
 trials_per_block_plt = trials_per_block_plt + ylab("No. participants")
 
 ```
+
 ```{r make trials per participant total graph, include = FALSE}
 temp <- group_by(df, participant,block_type,group)
 number_of_trials_2 <- summarise(temp, num_trials = length(rt))
@@ -75,14 +96,122 @@ trials_total_plt
 ```
 
 ``` {r get summary stats, include=FALSE}
+# so mean and median rt by group, block type, difficulty, and Ta vs Tp
+temp = group_by(df, group, block_type, difficulty, targ_pr)
+desc_stats = summarise(temp, mean_rt = mean(rt),
+                             median_rt = median(rt),
+                             sdev = sd(rt),
+                             N = length(rt), 
+                             se = sdev/sqrt(N),
+                             upper_mean = mean_rt + se,
+                             lower_mean = mean_rt - se,
+                             upper_median = median_rt + se,
+                             lower_median = median_rt - se)
+rm(temp)
+
+mean_rt_plot = ggplot(desc_stats, aes(difficulty, mean_rt, colour = block_type))
+mean_rt_plot = mean_rt_plot + geom_point()
+mean_rt_plot = mean_rt_plot + geom_errorbar(aes(ymin = lower_mean, ymax = upper_mean))
+mean_rt_plot = mean_rt_plot + facet_grid(group~targ_pr)
+
+median_rt_plot = ggplot(desc_stats, aes(difficulty, median_rt, colour = block_type))
+median_rt_plot = median_rt_plot + geom_point()
+median_rt_plot = median_rt_plot + geom_errorbar(aes(ymin = lower_median, ymax = upper_median))
+median_rt_plot = median_rt_plot + facet_grid(group~targ_pr)
 
 ```
 
 
+Below are plots of the mean and median reaction times separated by group (either RABL or SIBL) and also whether the target was present or absent (1 or 0 respectively). The first graph is the mean reaction times with standard error bars, the second is of the median reaction times. Along the x-axis is the "difficulty" of the trial. Higher numbers mean more variance in the distractors and therefore a more difficult trial. The number relates to how much the distractor line segments could vary about an orientation that was orthogonal to the target item.
+```{r display the mean and median rt graphs}
+mean_rt_plot
+median_rt_plot
+```
+
+```{r make the same plots but for accuracy this time, include=FALSE}
+temp = group_by(df, group, block_type, difficulty, targ_pr)
+desc_stats_acc = summarise(temp, mean_correct = mean(correct),
+                                 median_correct = median(correct),
+                                 sdev = sd(correct),
+                                 N = length(correct), 
+                                 se = sdev/sqrt(N),
+                                 upper_mean = mean_correct + se,
+                                 lower_mean = mean_correct - se,
+                                 upper_median = median_correct + se,
+                                 lower_median = median_correct - se)
+rm(temp)
+
+mean_acc_plot = ggplot(desc_stats_acc, aes(difficulty, mean_correct, colour = block_type))
+mean_acc_plot = mean_acc_plot + geom_point()
+mean_acc_plot = mean_acc_plot + geom_errorbar(aes(ymin = lower_mean, ymax = upper_mean))
+mean_acc_plot = mean_acc_plot + facet_grid(group~targ_pr)
+
+```
+
+Below are the plots of mean accuracy over different difficulties, block types, and target presence. 
+```{r display the mean accuracy graphs}
+mean_acc_plot
+```
+
+```{r make some density plots, include=FALSE}
+# make targ_pr a factor 
+df$targ_pr <- as.factor(df$targ_pr)
+
+# make separate density plot data frame 
+dense_data <- df
+
+# make difficulty a factor just for this 
+dense_data$difficulty <- as.factor(dense_data$difficulty)
+
+density_plot_RABL = ggplot(dense_data[dense_data$group == "RABL",], aes(rt, colour = targ_pr))
+density_plot_RABL = density_plot_RABL + geom_density(alpha = 0.1)
+density_plot_RABL = density_plot_RABL + facet_wrap(~block_type)
+density_plot_RABL = density_plot_RABL + ggtitle("RABL group")
 
 
-``` {r creat save file}
+density_plot_SIBL = ggplot(dense_data[dense_data$group == "SIBL",], aes(rt, colour = targ_pr))
+density_plot_SIBL = density_plot_SIBL + geom_density(alpha = 0.1)
+density_plot_SIBL = density_plot_SIBL + facet_wrap(~block_type)
+density_plot_SIBL = density_plot_SIBL + ggtitle("SIBL group")
+
+
+
+```
+
+These are the density plots for Target absent and target present responses across groups and the block type. 
+```{r display the density plot}
+density_plot_RABL
+density_plot_SIBL
+```
+
+```{r density plots with difficulty as a factor, include=FALSE}
+
+density_plot_RABL_diff = ggplot(dense_data[dense_data$group == "RABL",], aes(rt, colour = difficulty))
+density_plot_RABL_diff = density_plot_RABL_diff + geom_density(alpha = 0.1)
+density_plot_RABL_diff = density_plot_RABL_diff + facet_grid(targ_pr~block_type)
+density_plot_RABL_diff = density_plot_RABL_diff + ggtitle("RABL group")
+
+
+density_plot_SIBL_diff = ggplot(dense_data[dense_data$group == "SIBL",], aes(rt, colour = difficulty))
+density_plot_SIBL_diff = density_plot_SIBL_diff + geom_density(alpha = 0.1)
+density_plot_SIBL_diff = density_plot_SIBL_diff + facet_grid(targ_pr~block_type)
+density_plot_SIBL_diff = density_plot_SIBL_diff + ggtitle("SIBL group")
+
+```
+
+
+These are the plots when we distinguish across the different difficulty levels. For the purpose of these graphs, difficulty was treated as a "discrete" factor, but for the modelling this should be a continuous variable instead. I created a different data frame for these graphs so the main data frame (df) should remain unchanged. 
+
+``` {r display the density plots with difficulty as a factor}
+density_plot_RABL_diff
+density_plot_SIBL_diff
+```
+
+
+``` {r creat save file, include=FALSE}
+# remove everything but the df 
+rm(list=ls()[!(ls() %in% c("df"))])
+
 # Save only the new data frame
-# run just the once
-# save(df, file = "scratch/processed_data_nar.rda")
+save(df, file = "scratch/processed_data_nar.rda")
 ````
