@@ -208,10 +208,34 @@ density_plot_SIBL_diff
 ```
 
 
+# Modelling data creation 
+Below is a record of what happened for the modelling of the data. Every step taken to produce each model and the results of each can be seen here. 
+
+Initially, we centred all contniuos predictors according to the grand mean 
+
+```{r centreing the predictors}
+# centre difficulty 
+df$c_difficulty <- df$difficulty - mean(df$difficulty)
+
+# centre p_rt
+df$c_p_rt <- df$p_rt - mean(df$p_rt)
+```
+
+We also created a dataset just to look at correct trials. 
+
+```{r make only correct trials dataset}
+df_correct_only <- df[df$correct == 1,]
+```
+
 ``` {r creat save file, include=FALSE}
 # remove everything but the df 
-rm(list=ls()[!(ls() %in% c("df"))])
+rm(list=ls()[!(ls() %in% c("df","df_correct_only"))])
 
 # Save only the new data frame
-save(df, file = "scratch/processed_data_nar.rda")
+save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 ````
+
+
+
+
+
