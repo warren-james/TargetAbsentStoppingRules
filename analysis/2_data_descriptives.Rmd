@@ -221,6 +221,11 @@ df$c_difficulty <- df$difficulty - mean(df$difficulty)
 df$c_p_rt <- df$p_rt - mean(df$p_rt)
 ```
 
+Target presence is converted using "as.numeric()" 
+
+```{r use as.numeric() on targ_pr}
+df$targ_pr <- as.numeric(df$targ_pr)
+```
 We also created a dataset just to look at correct trials. 
 
 ```{r make only correct trials dataset}

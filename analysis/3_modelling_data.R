@@ -5,11 +5,13 @@ library(rethinking)
 load("scratch/processed_data_nar.rda")
 
 # make the tibble into a dataframe for map 
-df_correct_only <- as.data.frame(df_correct_only)
+test <- as.data.frame(df_correct_only)
 
 #### first model #### 
 # Just the difficulty and targ_pres
-# rt ~ difficulty * targ_press + random effects
+# no random effects are present in this model
+# in Alasdair's words, it's therefore "crap"
+# rt ~ difficulty * targ_press
 
 m_tp_diff_1 <- map(
   alist(
@@ -20,6 +22,11 @@ m_tp_diff_1 <- map(
     b_tp ~ dnorm( 1 , 10 ) , 
     sigma ~ dnorm( 0 , 1 )
   ) ,
-data = df_correct_only)
+data = test)
+
+
+
+#### save models into a subfolder within scratch ####
+save(m_tp_diff_1, file = "scratch/models/m_tp_diff_1")
 
 

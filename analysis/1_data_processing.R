@@ -32,6 +32,10 @@ get_degrees <- function(x){
 }
 
 
+get_radians <- function(x){
+  ((x*pi)/180)
+}
+
 #### first, read in raw data to df ####
 
 
@@ -181,6 +185,9 @@ df$site <- as.factor(df$site)
 # change Difficulty levels to the actual degree of variance #
 df$difficulty <- get_degrees(df$difficulty)
 
+# turn degrees into radians 
+df$difficulty <- get_radians(df$difficulty)
+
 # get information about correct judgements 
 df$correct <- 0 
 df$correct[df$key == "l" & df$targ_pr == 1] <- 1 
@@ -248,3 +255,6 @@ df <- select(df,
 
 # save processed data file!
 save(df, file = "scratch/processed_data.rda")
+
+#tidy up 
+rm(list = ls())
