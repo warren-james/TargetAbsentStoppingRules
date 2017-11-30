@@ -6,6 +6,9 @@ load("scratch/processed_data_nar.rda")
 # make the tibble into a dataframe for map 
 df <- as.data.frame(df_correct_only)
 
+# tidy 
+rm(df_correct_only)
+
 ######################### model 1 ################################
 # This model is a simple test, and clearly wrong!
 # No random effects are present in this model
