@@ -218,6 +218,8 @@ df$c_p_rt <- df$p_rt - mean(df$p_rt)
 
 Difficulty was divided by pi in order to make this measure scaled. 0 being the least amount possible and 1 being the most difficult amount of variation. Though we didn't approach these valuse (as a value of one here would make the task impossible), it's good to have this standardised. 
 
+Now, 0 in difficulty means no variation in the distractors, 1 means they are uniformly random
+
 ```{r scale difficulty}
 df$s_difficulty <- df$difficulty/pi
 
