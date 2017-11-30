@@ -77,6 +77,6 @@ plt <- plt + geom_ribbon(data = pred_lines, aes(
 	alpha = 0.5)
 # spec theme
 plt <- plt + scale_x_continuous("search difficulty", limits = c(0, pi))
-plt <- plt + scale_y_continuous("reaction time", limits = c(0, 10))
+# plt <- plt + scale_y_continuous("reaction time", limits = c(0, 10))
 plt <- plt + theme_bw()
 plt
