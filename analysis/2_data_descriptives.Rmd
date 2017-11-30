@@ -174,8 +174,6 @@ density_plot_SIBL = density_plot_SIBL + geom_density(alpha = 0.1)
 density_plot_SIBL = density_plot_SIBL + facet_wrap(~block_type)
 density_plot_SIBL = density_plot_SIBL + ggtitle("SIBL group")
 
-
-
 ```
 
 These are the density plots for Target absent and target present responses across groups and the block type. 
@@ -221,10 +219,12 @@ df$c_difficulty <- df$difficulty - mean(df$difficulty)
 df$c_p_rt <- df$p_rt - mean(df$p_rt)
 ```
 
-Target presence is converted using "as.numeric()" 
+Target presence is converted using "as.numeric()". This changed 0 -> 1 and 1 -> 2, so we subtracted 1 from everything in this column
 
 ```{r use as.numeric() on targ_pr}
 df$targ_pr <- as.numeric(df$targ_pr)
+
+df$targ_pr <- df$targ_pr - 1
 ```
 We also created a dataset just to look at correct trials. 
 
