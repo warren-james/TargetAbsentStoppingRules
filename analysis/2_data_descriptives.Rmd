@@ -209,14 +209,19 @@ density_plot_SIBL_diff
 # Modelling data creation 
 Below is a record of what happened for the modelling of the data. Every step taken to produce each model and the results of each can be seen here. 
 
-Initially, we centred all contniuos predictors according to the grand mean 
+Initially, we centred previous RTs according to the grand mean 
 
 ```{r centreing the predictors}
-# centre difficulty 
-df$c_difficulty <- df$difficulty - mean(df$difficulty)
-
 # centre p_rt
 df$c_p_rt <- df$p_rt - mean(df$p_rt)
+```
+
+Difficulty was divided by pi in order to make this measure scaled. 0 being the least amount possible and 1 being the most difficult amount of variation. Though we didn't approach these valuse (as a value of one here would make the task impossible), it's good to have this standardised. 
+
+```{r scale difficulty}
+df$s_difficulty <- df$difficulty/pi
+
+df$s_difficulty <- round(df$s_difficulty, digits = 3)
 ```
 
 Target presence is converted using "as.numeric()". This changed 0 -> 1 and 1 -> 2, so we subtracted 1 from everything in this column
