@@ -212,13 +212,21 @@ density_plot_SIBL_diff
 Below is a record of what happened for the modelling of the data. Every step taken to produce each model and the results of each can be seen here. 
 
 Initially, we centred all contniuos predictors according to the grand mean 
-
 ```{r centreing the predictors}
-# centre difficulty 
-df$c_difficulty <- df$difficulty - mean(df$difficulty)
-
 # centre p_rt
 df$c_p_rt <- df$p_rt - mean(df$p_rt)
+```
+
+Difficulty was scaled by dividing everything by pi. This means that 0 is the easiest difficulty (no variance in the distractors) and 1 is virtually impossible (the distractors vary through 360$deg;)
+
+Difficulty was also changed to be called theta
+
+``` {r scale difficulty}
+# change difficulty name
+colnames(df)[7] <- "theta"
+
+#rescale difficulty for the models
+df$s_theta <- round(df$theta/pi, digits = 3) 
 ```
 
 Target presence is converted using "as.numeric()" 
