@@ -94,7 +94,7 @@ load("scratch/processed_data_nar.rda")
 
 
 #################################################################
-# model 1
+# model 1 - getting started
 #################################################################
 
 load("scratch/models/m_tp_diff_1")
@@ -109,14 +109,14 @@ dens(post$b_diff)
 dens(post$b_tp)
 
 # get HDPIs for regression lines and predictions
-model_lines <- get_hpdi_region_from_samples(post)
+model_lines <- get_hpdi_region_from_samples(post, ln = FALSE)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_1)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'normal and crap', FALSE)
 
 #################################################################
-# model 2
+# model 2 - using log-normal distribution
 #################################################################
 
 load("scratch/models/m_tp_diff_2")
@@ -138,7 +138,7 @@ plot_model_simple(pred_lines, model_lines, 'log-normal and crap', TRUE)
 
 
 #################################################################
-# model 3
+# model 3 - adding an interaction
 #################################################################
 
 load("scratch/models/m_tp_diff_3")
@@ -163,4 +163,26 @@ plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still c
 # compare these simple models using IC
 #################################################################
 
-compare(m_tp_diff_3, m_tp_diff_2, m_tp_diff_1)
+compare(m_tp_diff_3, m_tp_diff_2)
+
+#################################################################
+# model 4 - thinking about our priors
+#################################################################
+
+load("scratch/models/m_tp_diff_4")
+precis(m_tp_diff_4)
+
+# extract samples from model
+post <- extract.samples(m_tp_diff_4)
+
+# plot posterior distributions for parameters!
+dens(post$a)
+dens(post$b_diff)
+dens(post$b_tp)
+
+# get HDPIs for regression lines and predictions
+model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
+pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_4)
+
+# plot predictions
+plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap, better priors', TRUE)
