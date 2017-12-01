@@ -61,17 +61,17 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 	# add model fit
 	plt <- plt + geom_ribbon(data = model_lines, 
 		aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
-
 	# add empirical data points
 	plt <- plt + geom_jitter(data = df_correct_only, 
 		aes(x = theta, y = rt, colour = as.factor(targ_pr)),
-		shape = 3, alpha = 0.2) 
+		shape = 3, alpha = 0.2, show.legend = FALSE) 
 	# spec theme
 	plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
 	plt <- plt + scale_y_continuous("reaction time")
 	if (lt == TRUE) {
 		plt = plt + scale_y_continuous(trans = log_trans())
 	}
+	plt <- plt + scale_fill_discrete(name = "target present")
 	plt <- plt + ggtitle(title_text)
 	plt <- plt + theme_bw()
 
