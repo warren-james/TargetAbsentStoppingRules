@@ -50,8 +50,8 @@ save(m_tp_diff_1, file = "scratch/models/m_tp_diff_1")
 
 m_tp_diff_2 <- map(
 	alist(
-	    rt ~ dnorm(mu, sigma),
-	    mu <- exp(a + b_diff*theta + b_tp*targ_pr), 
+	    rt ~ dlnorm(mu, sigma),
+	    mu <- a + b_diff*theta + b_tp*targ_pr, 
 	    # specify priors!
 	    a ~ dnorm(0, 10),
 	    b_diff ~ dnorm(0, 10), 
