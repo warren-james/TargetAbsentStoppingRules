@@ -103,9 +103,9 @@ m_tp_diff_3 <- map(
 	    rt ~ dlnorm(mu, sigma),
 	    mu <- a + b_diff*theta + b_tp*targ_pr + b_tp_diff*targ_pr*theta, 
 	    # specify priors!
-	    a ~ dnorm(0, 10),
+	    a ~ dnorm(1, 1),
 	    b_diff ~ dnorm(0, 10), 
-	    b_tp ~ dnorm(0, 10),
+	    b_tp ~ dnorm(-1, 1),
 	    b_tp_diff ~ dnorm(0, 10),
 	    sigma ~ dcauchy(0, 1)),
 	data = df, start = start_points)		

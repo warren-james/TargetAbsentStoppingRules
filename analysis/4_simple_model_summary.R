@@ -92,7 +92,6 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 load("scratch/processed_data_nar.rda")
 
 
-
 #################################################################
 # model 1 - getting started
 #################################################################
