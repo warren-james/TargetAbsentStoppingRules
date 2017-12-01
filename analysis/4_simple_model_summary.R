@@ -159,3 +159,8 @@ pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_3)
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap', TRUE)
 
+#################################################################
+# compare these simple models using IC
+#################################################################
+
+compare(m_tp_diff_3, m_tp_diff_2, m_tp_diff_1)
