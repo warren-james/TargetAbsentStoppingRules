@@ -2,8 +2,10 @@ library(rethinking)
 library(tidyverse)
 library(scales)
 
+#################################################################
+# create functions 
+#################################################################
 
-#### create functions ####
 # get 97% credible interval for regression lines
 get_hpdi_region_from_samples <- function(post) {
 	model_lines <- rbind(
@@ -26,7 +28,6 @@ get_hpdi_region_from_samples <- function(post) {
 	return(model_lines)
 }
 
-
 # sample a load of points from the model so we can get a feel for what it predicts
 get_prediction_region_from_samples <- function(post, m) {
 	
@@ -46,17 +47,47 @@ get_prediction_region_from_samples <- function(post, m) {
 	return(pred_lines)		
 }
 
-#### load in data ####
+# plot model against empirical data
+# simple rt ~ theta for ta and tp
+plot_model_simple <- function(pred_lines, model_lines, title_text) {
+	plt <-  ggplot()	
+	# add prediction range
+	plt <- plt + geom_ribbon(data = pred_lines, 
+		aes(
+		x = pred_lines$theta, 
+		ymin = pred_lines$lower,
+		ymax = pred_lines$upper,
+		fill = pred_lines$targ),
+		alpha = 0.5)
+	# add model fit
+	plt <- plt + geom_ribbon(data= model_lines, 
+		aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
+
+	# add empirical data points
+	plt <- plt + geom_jitter(data = df_correct_only, 
+		aes(x = theta, y = rt, colour = as.factor(targ_pr)),
+		shape = 3, alpha = 0.2) 
+	# spec theme
+	plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
+	plt <- plt + scale_y_continuous("reaction time", trans = log_trans())
+	plt <- plt + ggtitle(title_text)
+	plt <- plt + theme_bw()
+
+	plt
+}
+#################################################################
+
+# load in data 
 load("scratch/processed_data_nar.rda")
 
-# load model
-load("scratch/models/m_tp_diff_1")
+#################################################################
+# model 1
+#################################################################
 
-# load  first model
+load("scratch/models/m_tp_diff_1")
 precis(m_tp_diff_1)
 
-#### MODEL 1 ####
-#### extract samples from model ####
+# extract samples from model
 post <- extract.samples(m_tp_diff_1)
 
 # plot posterior distributions for parameters!
@@ -64,41 +95,20 @@ dens(post$a)
 dens(post$b_diff)
 dens(post$b_tp)
 
-
+# get HDPIs for regression lines and predictions
 model_lines <- get_hpdi_region_from_samples(post)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_1)
 
+# plot predictions
+plot_model_simple(pred_lines, model_lines, 'normal and crap')
 
-#### plot predictions ####
-plt <-  ggplot()
-plt <- plt + geom_jitter(data = df_correct_only, 
-	aes(x = theta, y = rt, colour = as.factor(targ_pr))) 
-# add model fit
-plt <- plt + geom_ribbon(data= model_lines, aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
-# add prediction range
-plt <- plt + geom_ribbon(data = pred_lines, aes(
-	x = pred_lines$theta, 
-	ymin = pred_lines$lower,
-	ymax = pred_lines$upper,
-	fill = pred_lines$targ),
-	alpha = 0.5)
-# spec theme
-plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
-# plt <- plt + scale_y_continuous("reaction time", limits = c(0, 10))
-plt <- plt + theme_bw()
-plt
+#################################################################
+# model 2
+#################################################################
 
-
-#### MODEL 2 ####
-
-
-# load model
 load("scratch/models/m_tp_diff_2")
-
-# load  first model
 precis(m_tp_diff_2)
 
-#### MODEL 1 ####
 #### extract samples from model ####
 post <- extract.samples(m_tp_diff_2)
 
@@ -107,32 +117,10 @@ dens(post$a)
 dens(post$b_diff)
 dens(post$b_tp)
 
-
-
 model_lines <- get_hpdi_region_from_samples(post)
+model_lines$lower <- exp(model_lines$lower)
+model_lines$upper <- exp(model_lines$upper)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_2)
 
-
-#### plot predictions ####
-plt <-  ggplot()
-plt <- plt + geom_jitter(data = df_correct_only, 
-	aes(x = theta, y = rt, colour = as.factor(targ_pr)), alpha =.7) 
-# add model fit
-plt <- plt + geom_ribbon(data = model_lines, aes(
-	x = theta, 
-	ymin = lower, 
-	ymax = upper, 
-	fill = targ_pr))
-# add prediction range
-plt <- plt + geom_ribbon(data = pred_lines, aes(
-	x = pred_lines$theta, 
-	ymin = pred_lines$lower,
-	ymax = pred_lines$upper,
-	fill = pred_lines$targ),
-	alpha = 0.25)
-# spec theme
-plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
-plt <- plt + scale_y_continuous("reaction time", trans = log_trans())
-plt <- plt + theme_bw()
-plt
-
+# plot predictions
+plot_model_simple(pred_lines, model_lines, 'log-normal and crap')
