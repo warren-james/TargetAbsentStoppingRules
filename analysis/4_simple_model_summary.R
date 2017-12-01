@@ -69,7 +69,7 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 	plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
 	plt <- plt + scale_y_continuous("reaction time")
 	if (lt == TRUE) {
-		plt = plt + scale_y_continuous(trans = log_trans())
+		plt = plt + scale_y_continuous(trans = log2_trans())
 	}
 	plt <- plt + scale_fill_discrete(name = "target present")
 	plt <- plt + ggtitle(title_text)
