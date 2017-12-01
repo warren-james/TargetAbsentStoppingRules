@@ -2,9 +2,10 @@ library(rethinking)
 library(tidyverse)
 library(scales)
 
+
+#### create functions ####
+# get 97% credible interval for regression lines
 get_hpdi_region_from_samples <- function(post) {
-	#### get 97% CIs ####
-	# get 97% credible interval for regression lines
 	model_lines <- rbind(
 		data.frame(
 			theta = c(0, 1),
@@ -25,8 +26,10 @@ get_hpdi_region_from_samples <- function(post) {
 	return(model_lines)
 }
 
+
+# sample a load of points from the model so we can get a feel for what it predicts
 get_prediction_region_from_samples <- function(post, m) {
-	# sample a load of points from the model so we can get a feel for what it predicts
+	
 	pred_ta = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 0))
 	pred_tp = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 1))
 
@@ -42,7 +45,6 @@ get_prediction_region_from_samples <- function(post, m) {
 
 	return(pred_lines)		
 }
-
 
 #### load in data ####
 load("scratch/processed_data_nar.rda")
@@ -72,10 +74,10 @@ plt <-  ggplot()
 plt <- plt + geom_jitter(data = df_correct_only, 
 	aes(x = theta, y = rt, colour = as.factor(targ_pr))) 
 # add model fit
-plt <- plt + geom_ribbon(data= model_lines, aes(x = s_theta, ymin = lower, ymax = upper, fill = targ_pr))
+plt <- plt + geom_ribbon(data= model_lines, aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
 # add prediction range
 plt <- plt + geom_ribbon(data = pred_lines, aes(
-	x = pred_lines$s_theta, 
+	x = pred_lines$theta, 
 	ymin = pred_lines$lower,
 	ymax = pred_lines$upper,
 	fill = pred_lines$targ),
