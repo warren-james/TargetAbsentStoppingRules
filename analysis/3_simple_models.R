@@ -10,7 +10,7 @@ df <- as.data.frame(df_correct_only)
 rm(df_correct_only)
 
 # add in start points 
-start_points <- list(a = mean(df$rt), b_tp = -1, b_diff = 2, sigma = sd(df$tr))
+start_points <- list(a = mean(df$rt), b_tp = -1, b_diff = 2, sigma = sd(df$rt))
 
 ######################### model 1 ################################
 # This model is a simple test, and clearly wrong!
@@ -26,7 +26,7 @@ start_points <- list(a = mean(df$rt), b_tp = -1, b_diff = 2, sigma = sd(df$tr))
 m_tp_diff_1 <- map(
 	alist(
 	    rt ~ dnorm(mu, sigma),
-	    mu <- a + b_diff*s_theta + b_tp*targ_pr, 
+	    mu <- a + b_diff*theta + b_tp*targ_pr, 
 	    # specify priors!
 	    a ~ dnorm(0, 10),
 	    b_diff ~ dnorm(0, 10), 
@@ -51,7 +51,7 @@ save(m_tp_diff_1, file = "scratch/models/m_tp_diff_1")
 m_tp_diff_2 <- map(
 	alist(
 	    rt ~ dnorm(mu, sigma),
-	    mu <- exp(a + b_diff*s_theta + b_tp*targ_pr), 
+	    mu <- exp(a + b_diff*theta + b_tp*targ_pr), 
 	    # specify priors!
 	    a ~ dnorm(0, 10),
 	    b_diff ~ dnorm(0, 10), 

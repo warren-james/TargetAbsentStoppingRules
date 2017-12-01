@@ -223,10 +223,10 @@ Difficulty was also changed to be called theta
 
 ``` {r scale difficulty}
 # change difficulty name
-colnames(df)[7] <- "theta"
+#colnames(df)[7] <- "theta"
 
 #rescale difficulty for the models
-df$s_theta <- round(df$theta/pi, digits = 3) 
+df$theta <- round(df$difficulty/pi, digits = 3) 
 ```
 
 Target presence is converted using "as.numeric()" 
