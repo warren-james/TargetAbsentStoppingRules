@@ -62,7 +62,7 @@ m_tp_diff_2 <- map(
 #### save models into a subfolder within scratch ####
 save(m_tp_diff_2, file = "scratch/models/m_tp_diff_2")
 
-######################### model 2 ################################
+######################### model 3 ################################
 # This model is a simple test, and clearly wrong!
 # No random effects are present in this model
 # 
@@ -72,16 +72,17 @@ save(m_tp_diff_2, file = "scratch/models/m_tp_diff_2")
 # Use dumb weak (0, 10) priors
 #################################################################
 
-m_tp_diff_2 <- map(
+m_tp_diff_3 <- map(
 	alist(
 	    rt ~ dlnorm(mu, sigma),
-	    mu <- a + b_diff*theta + b_tp*targ_pr, 
+	    mu <- a + b_diff*theta + b_tp*targ_pr + b_tp_diff*targ_pr*theta, 
 	    # specify priors!
 	    a ~ dnorm(0, 10),
 	    b_diff ~ dnorm(0, 10), 
-	    b_tp ~ dnorm(0, 10), 
+	    b_tp ~ dnorm(0, 10),
+	    b_tp_diff ~ dnorm(0, 10),
 	    sigma ~ dcauchy(0, 1)),
 	data = df, start = start_points)		
 
 #### save models into a subfolder within scratch ####
-save(m_tp_diff_2, file = "scratch/models/m_tp_diff_2")
+save(m_tp_diff_3, file = "scratch/models/m_tp_diff_3")
