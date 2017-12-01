@@ -30,7 +30,6 @@ get_hpdi_region_from_samples <- function(post) {
 
 # sample a load of points from the model so we can get a feel for what it predicts
 get_prediction_region_from_samples <- function(post, m) {
-	
 	pred_ta = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 0))
 	pred_tp = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 1))
 
@@ -39,7 +38,7 @@ get_prediction_region_from_samples <- function(post, m) {
 	tp_PI = apply(pred_tp, 2, PI, prob = 0.97)
 
 	pred_lines = data.frame(
-		theta = rep(seq(0,1,0.1),2),
+		theta = rep(seq(0,1,0.1), 2),
 		targ_pr = rep(c("absent", "present"), each = 11),
 		rbind(t(ta_PI), t(tp_PI)))
 	names(pred_lines)[3:4] = c("lower", "upper")
@@ -49,18 +48,18 @@ get_prediction_region_from_samples <- function(post, m) {
 
 # plot model against empirical data
 # simple rt ~ theta for ta and tp
-plot_model_simple <- function(pred_lines, model_lines, title_text) {
+plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 	plt <-  ggplot()	
 	# add prediction range
 	plt <- plt + geom_ribbon(data = pred_lines, 
 		aes(
-		x = pred_lines$theta, 
-		ymin = pred_lines$lower,
-		ymax = pred_lines$upper,
-		fill = pred_lines$targ),
+		x = theta, 
+		ymin = lower,
+		ymax = upper,
+		fill = targ_pr),
 		alpha = 0.5)
 	# add model fit
-	plt <- plt + geom_ribbon(data= model_lines, 
+	plt <- plt + geom_ribbon(data = model_lines, 
 		aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
 
 	# add empirical data points
@@ -69,7 +68,10 @@ plot_model_simple <- function(pred_lines, model_lines, title_text) {
 		shape = 3, alpha = 0.2) 
 	# spec theme
 	plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
-	plt <- plt + scale_y_continuous("reaction time", trans = log_trans())
+	plt <- plt + scale_y_continuous("reaction time")
+	if (lt == TRUE) {
+		plt = plt + scale_y_continuous(trans = log_trans())
+	}
 	plt <- plt + ggtitle(title_text)
 	plt <- plt + theme_bw()
 
@@ -100,7 +102,7 @@ model_lines <- get_hpdi_region_from_samples(post)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_1)
 
 # plot predictions
-plot_model_simple(pred_lines, model_lines, 'normal and crap')
+plot_model_simple(pred_lines, model_lines, 'normal and crap', FALSE)
 
 #################################################################
 # model 2
@@ -118,9 +120,10 @@ dens(post$b_diff)
 dens(post$b_tp)
 
 model_lines <- get_hpdi_region_from_samples(post)
+# correct for using a log-normal distribution
 model_lines$lower <- exp(model_lines$lower)
 model_lines$upper <- exp(model_lines$upper)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_2)
 
 # plot predictions
-plot_model_simple(pred_lines, model_lines, 'log-normal and crap')
+plot_model_simple(pred_lines, model_lines, 'log-normal and crap', TRUE)
