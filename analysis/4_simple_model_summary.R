@@ -7,7 +7,7 @@ library(scales)
 #################################################################
 
 # get 97% credible interval for regression lines
-get_hpdi_region_from_samples <- function(post) {
+get_hpdi_region_from_samples <- function(post, ln) {
 	model_lines <- rbind(
 		data.frame(
 			theta = c(0, 1),
@@ -19,11 +19,20 @@ get_hpdi_region_from_samples <- function(post) {
 		data.frame(
 			theta = c(0, 1),
 			lower = sapply(c(0,1), 
-				function(x) {y = quantile(post$a + post$b_tp + post$b_diff * x, 0.015)}),
+				function(x) {y = quantile(
+					post$a + post$b_tp + (post$b_diff + post$b_tp_diff) * x, 
+					0.015)}),
 			upper = sapply(c(0,1), 
-				function(x) {y = quantile(post$a + post$b_tp + post$b_diff * x, 0.985)}),
+				function(x) {y = quantile(
+					post$a + post$b_tp + (post$b_diff + post$b_tp_diff) * x, 
+					0.985)}),
 			targ_pr = "present")
 		)
+	# if we're using a log-normal model, we have to transform regression lines!
+	if (ln == TRUE) {
+		model_lines$lower <- exp(model_lines$lower)
+		model_lines$upper <- exp(model_lines$upper)
+	}
 
 	return(model_lines)
 }
@@ -82,6 +91,8 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 # load in data 
 load("scratch/processed_data_nar.rda")
 
+
+
 #################################################################
 # model 1
 #################################################################
@@ -119,11 +130,32 @@ dens(post$a)
 dens(post$b_diff)
 dens(post$b_tp)
 
-model_lines <- get_hpdi_region_from_samples(post)
-# correct for using a log-normal distribution
-model_lines$lower <- exp(model_lines$lower)
-model_lines$upper <- exp(model_lines$upper)
+model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
 pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_2)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'log-normal and crap', TRUE)
+
+
+#################################################################
+# model 3
+#################################################################
+
+load("scratch/models/m_tp_diff_3")
+precis(m_tp_diff_3)
+
+# extract samples from model
+post <- extract.samples(m_tp_diff_3)
+
+# plot posterior distributions for parameters!
+dens(post$a)
+dens(post$b_diff)
+dens(post$b_tp)
+
+# get HDPIs for regression lines and predictions
+model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
+pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_3)
+
+# plot predictions
+plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap', TRUE)
+
