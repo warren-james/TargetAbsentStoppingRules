@@ -31,13 +31,11 @@ get_degrees <- function(x){
 	((pi/x)*180)/(pi)
 }
 
-
 get_radians <- function(x){
   ((x*pi)/180)
 }
 
 #### first, read in raw data to df ####
-
 
 # create empty data.frame for data
 df <- tibble(

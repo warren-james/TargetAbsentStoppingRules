@@ -15,16 +15,15 @@ library(ggthemes)
 # load in data 
 load("scratch/processed_data_nar.rda")
 
-
 #################################################################
 # model 1 - getting started
 #################################################################
 
-load("scratch/models/m_tp_diff_mixed_2")
-precis(m_tp_diff_2)
+load("scratch/models/m_tp_diff_mixed_1")
+precis(m_tp_diff_1)
 
 # extract samples from model
-post <- extract.samples(m_tp_diff_2)
+post <- extract.samples(m_tp_diff_1)
 
 # get 95% HPDI for each person 
 #  this is a horrible hack, what's a nicer way of doing this?
@@ -58,6 +57,24 @@ plt <- plt + geom_errorbar(
 	data = intercepts_p, 
 	aes(x = participant, ymin = lower, ymax = upper))
 plt <- plt + scale_x_continuous("participant", expand = c(0,0))
-plt <- plt + scale_y_continuous("reaction times (seconds)", trans = log2_trans())
+plt <- plt + scale_y_continuous(
+	"reaction times (seconds)", 
+	trans = log2_trans(),
+	limits = c(1, 6))
 plt <- plt + theme_bw() + scale_fill_ptol()
 plt
+
+
+
+#################################################################
+# model 2 - getting started
+# now we have some slopes... plotting is getting more complicated
+#################################################################
+
+load("scratch/models/m_tp_diff_mixed_2")
+precis(m_tp_diff_2)
+
+# extract samples from model
+post <- extract.samples(m_tp_diff_2)
+
+

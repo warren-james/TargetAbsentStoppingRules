@@ -7,34 +7,19 @@ library(scales)
 #################################################################
 
 # get 97% credible interval for regression lines
-get_hpdi_region_from_samples <- function(post, ln) {
-	model_lines <- rbind(
-		data.frame(
-			theta = c(0, 1),
-			lower = sapply(c(0,1), 
-				function(x) {y = quantile(post$a + post$b_diff * x, 0.015)}),
-			upper = sapply(c(0,1), 
-				function(x) {y = quantile(post$a + post$b_diff * x, 0.985)}),
-			targ_pr = "absent"),
-		data.frame(
-			theta = c(0, 1),
-			lower = sapply(c(0,1), 
-				function(x) {y = quantile(
-					post$a + post$b_tp + (post$b_diff + post$b_tp_diff) * x, 
-					0.015)}),
-			upper = sapply(c(0,1), 
-				function(x) {y = quantile(
-					post$a + post$b_tp + (post$b_diff + post$b_tp_diff) * x, 
-					0.985)}),
-			targ_pr = "present")
-		)
-	# if we're using a log-normal model, we have to transform regression lines!
-	if (ln == TRUE) {
-		model_lines$lower <- exp(model_lines$lower)
-		model_lines$upper <- exp(model_lines$upper)
-	}
+get_hpdi_region_from_samples <- function(m, post) {
+	
+	pred_data <- data.frame(
+		difficulty = rep(seq(0, 1, 0.1), 2),
+		targ_pr = rep(0:1, each = 11))
 
-	return(model_lines)
+	mu <- link(m, data = pred.data)
+	mu.PI <- apply(mu, 2, PI)
+
+	pred_data$lower <- mu.PI[1,]
+	pred_data$upper <- mu.PI[2,]
+
+	return(pred_data)
 }
 
 # sample a load of points from the model so we can get a feel for what it predicts
