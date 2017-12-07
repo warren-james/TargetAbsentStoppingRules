@@ -21,10 +21,10 @@ load("scratch/processed_data_nar.rda")
 #################################################################
 
 load("scratch/models/m_tp_diff_mixed_2")
-precis(m_tp_diff_1)
+precis(m_tp_diff_2)
 
 # extract samples from model
-post <- extract.samples(m_tp_diff_1)
+post <- extract.samples(m_tp_diff_2)
 
 # get 95% HPDI for each person 
 #  this is a horrible hack, what's a nicer way of doing this?
