@@ -1,0 +1,19 @@
+This project is looking to examine the influence of previous response times (PRTs) on peoples' target absent judegments. In previous 
+literature, there is some suggestion that the overall structure of the environment can alter how much influence PRTs have on current RTs.
+Though this literature was primarily focussed on no. of targets in the display or overall setsize (i.e. the total number of items in the 
+display), the present study aims to investigate this effect when there will only be one target present amongst distractors that cause the 
+search task to be easy or more difficult. 
+
+The task required participants to search for a line segment tilted 45 degrees to the right and this would be present or absent on any 
+given trial. The distractors were other line segments that were centred at an orientation that was orthogonal to the target line segment.
+However, the degree to which they could vary about this point could change. In an easy trial, there was very little variation in the 
+distractors and as such they were all pretty much orthogonal to the target, but in a difficult trial, there would be a lot of variation 
+in the distractors meaning it was more difficult to identify the unique target item.
+
+For this this study, there were 3 conditions in which participants could participate. Each participant took part in a blocked condition in
+which the difficulty of the search remained constant for the entire block. They would then take part in either a random, or sine wave 
+condition. In the random condition, the difficulty would change from trial to trial in no systematic way. However, in the sine wave 
+condition, the difficulty would increase then decrease in a structured way (following a sine wave). 
+
+The modelling of this data should account for the presence (or absence) of the target on current and previous trials, difficulty of the
+search being carried out and the structure of the environment. 
