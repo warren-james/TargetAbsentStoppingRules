@@ -38,7 +38,7 @@ get_hpdi_region_from_samples <- function(post, ln) {
 }
 
 # sample a load of points from the model so we can get a feel for what it predicts
-get_prediction_region_from_samples <- function(post, m) {
+get_prediction_region_from_samples <- function(m) {
 	pred_ta = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 0))
 	pred_tp = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 1))
 
@@ -109,7 +109,7 @@ dens(post$b_tp)
 
 # get HDPIs for regression lines and predictions
 model_lines <- get_hpdi_region_from_samples(post, ln = FALSE)
-pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_1)
+pred_lines <- get_prediction_region_from_samples(m_tp_diff_1)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'normal and crap', FALSE)
@@ -130,7 +130,7 @@ dens(post$b_diff)
 dens(post$b_tp)
 
 model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_2)
+pred_lines <- get_prediction_region_from_samples(m_tp_diff_2)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'log-normal and crap', TRUE)
@@ -153,7 +153,7 @@ dens(post$b_tp)
 
 # get HDPIs for regression lines and predictions
 model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_3)
+pred_lines <- get_prediction_region_from_samples(m_tp_diff_3)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap', TRUE)
@@ -181,7 +181,7 @@ dens(post$b_tp)
 
 # get HDPIs for regression lines and predictions
 model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(post, m_tp_diff_4)
+pred_lines <- get_prediction_region_from_samples(m_tp_diff_4)
 
 # plot predictions
 plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap, better priors', TRUE)
