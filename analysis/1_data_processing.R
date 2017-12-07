@@ -1,4 +1,5 @@
 library(tidyverse)
+library(gtools)
 
 #### pre-processing script for the data ####
 # notes #
@@ -6,19 +7,13 @@ library(tidyverse)
 # key r = absent
 
 
-# Shift function #
-
-# WHAT IS THIS USED FOR?
-shift <- function(x,n){
-  c(rep(NA, n),x[seq(length(x)-n)])
-}
-
-extract_participant_id <- function(filename) {
-	#participant <- sub(".*bl", "", filename)
-  participant <- substring(filename, 3)
-  participant <- sub(".dat*.", "", participant)
-  return(participant)
-}
+# 
+# extract_participant_id <- function(filename) {
+# 	#participant <- sub(".*bl", "", filename)
+#   participant <- substring(filename, 3)
+#   participant <- sub(".dat*.", "", participant)
+#   return(participant)
+# }
 
 extract_difficulty <- function(d) {
 	d$difficulty <- sub(".*v", "",d$name)
@@ -39,7 +34,7 @@ get_radians <- function(x){
 
 # create empty data.frame for data
 df <- tibble(
-	participant = character(), 
+	participant = numeric(), 
 	group = character(),
 	trial = numeric(), 
 	block = numeric(),
@@ -65,8 +60,11 @@ import_names <- c(
 	"block_type")
 
 #### retrieve SIBL data #####
-block_files <- dir("../data/BLSI/Block/")
-sine_files  <- dir("../data/BLSI/Sine/")
+block_files <- mixedsort(dir("../data/BLSI/Block/"))
+sine_files  <- mixedsort(dir("../data/BLSI/Sine/"))
+
+# set this number to label each participant and avoid overlap
+a <- 1
 
 #  read in files
 for (f in block_files) {
@@ -75,9 +73,12 @@ for (f in block_files) {
   		sep = "\t", header = T)
 
 	names(d) <-import_names
-
-	# extract participant id number from filename
-	d$participant <- extract_participant_id(f)
+  
+	# label each participant
+	d$participant <- a
+	
+	# increase a with each iteration
+	a <- a + 1
 	
 	# assign group factor
 	d$group = "SIBL"
@@ -86,6 +87,9 @@ for (f in block_files) {
 	df = bind_rows(df, d)
 }
 
+# reset a
+a <- 1
+
 for (f in sine_files) {
 	d = read.csv(
   		paste("../data/BLSI/sine/", f, sep=""), 
@@ -93,9 +97,12 @@ for (f in sine_files) {
 	
 	names(d) <-import_names
 	
-	# extract participant id number from filename
-	d$participant <- extract_participant_id(f)
-
+	# label each participant
+	d$participant <- a
+	
+	# increas with each iteration
+	a <- a + 1
+	
 	# extract difficulty 
 	d <- extract_difficulty(d)
 
@@ -108,8 +115,12 @@ for (f in sine_files) {
 
 
 #### retrieve RABL data ####
-block_files <- dir("../data/BLRA/Block/")
-random_files <- dir("../data/BLRA/Random/")
+block_files <- mixedsort(dir("../data/BLRA/Block/"))
+random_files <- mixedsort(dir("../data/BLRA/Random/"))
+
+# assign a so it's large enough
+# hardcoded... is there a better way?
+a <- 35
 
 for (f in block_files) {
 	d <- read.csv(
@@ -117,16 +128,19 @@ for (f in block_files) {
     	sep = "\t", header = T)
   
 	names(d) <-import_names
+
+	  
+  d$participant <- a
   
-	# extract participant id number from filename
-	d$participant <- extract_participant_id(f)
-  
+  a <- a + 1
 	# assign group factor
 	d$group = "RABL"
 
 	# add to main dataframe
 	df = bind_rows(df, d)
 }
+
+a <- 35
 
 for (f in random_files) {
 	d = read.csv(
@@ -136,8 +150,10 @@ for (f in random_files) {
 	names(d) <-import_names
   
 	# extract participant id number from filename
-	d$participant <- extract_participant_id(f)
+	# d$participant <- extract_participant_id(f)
+	d$participant <- a
 	
+	a <- a + 1
 	# extract difficulty 
 	d <- extract_difficulty(d)
 	
@@ -149,7 +165,7 @@ for (f in random_files) {
 }
 
 # tidy up
-rm(d ,f, import_names, block_files,sine_files,random_files,shift)
+rm(a, d ,f, import_names, block_files,sine_files,random_files)
 
 
 #### now fix a few minor quirks in the data ####
@@ -157,13 +173,9 @@ rm(d ,f, import_names, block_files,sine_files,random_files,shift)
 
 # add site information
 df$site <- "Aberdeen"
-df$site[df$participant > 20] <- "Essex"
+df$site[df$group == "SIBL" & df$participant > 20] <- "Essex"
+df$site[df$group == "RABL" & df$participant > 55] <- "Essex"
 
-# recode participant numbers to make them all unique
-pID <- as.factor(paste(df$participant, df$group))
-levels(pID) <- seq(1, length(levels(pID)))
-df$participant <- pID
-rm(pID)
 
 # convert things to factors and remove white space from names
 df$targ_side <- as.factor(df$targ_side)

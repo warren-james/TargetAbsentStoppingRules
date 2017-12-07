@@ -16,7 +16,7 @@ df$difficulty <- round(df$difficulty, digits = 1)
 ```
 
 ```{r remove the Essex SIBL data, include=FALSE}
-toberemoved <- which(df$site == "Essex" & df$ group == "SIBL")
+toberemoved <- which(df$site == "Essex" & df$group == "SIBL")
 df <- df[-toberemoved,]
 
 rm(toberemoved)
