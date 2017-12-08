@@ -7,7 +7,31 @@ library(ggthemes)
 # create functions 
 #################################################################
 
-# show random intercepts
+# get 97% credible interval for regression lines
+get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
+	
+	pred_data <- list(
+		participant <- rep(unique(df$participant), each = 4),
+		theta =   rep(c(0.12, 0.88, 0.12, 0.88), length(unique(df$participant))),
+		targ_pr = rep(c(0, 0, 1, 1), length(unique(df$participant))))
+
+	mu <- link(m, data = pred_data)
+	mu.PI <- apply(mu, 2, PI)
+
+	pred_data$lower <- mu.PI[1,]
+	pred_data$upper <- mu.PI[2,]
+
+	pred_data$targ_pr <- as.factor(pred_data$targ_pr)
+	levels(pred_data$targ_pr) <- c("absent", "present")
+
+	if (ln == TRUE) { 
+		pred_data$lower <- exp(pred_data$lower)
+		pred_data$upper <- exp(pred_data$upper)
+	}
+
+
+	return(pred_data)
+}
 
 
 #################################################################
@@ -72,9 +96,10 @@ plt
 #################################################################
 
 load("scratch/models/m_tp_diff_mixed_2")
-precis(m_tp_diff_2)
+precis(m_tp_diff_2, depth = 2)
 
 # extract samples from model
 post <- extract.samples(m_tp_diff_2)
+model_lines <- get_hpdi_region_from_samples(m_tp_diff_2, post, TRUE)
 
 
