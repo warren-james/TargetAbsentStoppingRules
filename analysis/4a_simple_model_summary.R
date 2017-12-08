@@ -6,37 +6,69 @@ library(scales)
 # create functions 
 #################################################################
 
+# function that calls everything else!
+process_model <- function(m, ln = TRUE, title_text = "") {
+
+	precis(m)
+
+	# extract samples from model
+	post <- extract.samples(m)
+
+	# plot posterior distributions for parameters!
+	dens(post$a)
+	dens(post$b_diff)
+	dens(post$b_tp)
+
+	# get HDPIs for regression lines and predictions
+	model_lines <- get_hpdi_region_from_samples(m, post, ln)
+	pred_lines <- get_prediction_region_from_samples(m)
+
+	# plot predictions
+	plot_model_simple(pred_lines, model_lines, title_text, ln)
+} 
+
 # get 97% credible interval for regression lines
-get_hpdi_region_from_samples <- function(m, post) {
+get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
 	
 	pred_data <- data.frame(
-		difficulty = rep(seq(0, 1, 0.1), 2),
-		targ_pr = rep(0:1, each = 11))
+		theta = rep(c(0,1), 2),
+		targ_pr = rep(0:1, each = 2))
 
-	mu <- link(m, data = pred.data)
+	mu <- link(m, data = pred_data)
 	mu.PI <- apply(mu, 2, PI)
 
 	pred_data$lower <- mu.PI[1,]
 	pred_data$upper <- mu.PI[2,]
+
+	pred_data$targ_pr <- as.factor(pred_data$targ_pr)
+	levels(pred_data$targ_pr) <- c("absent", "present")
+
+	if (ln == TRUE) { 
+		pred_data$lower <- exp(pred_data$lower)
+		pred_data$upper <- exp(pred_data$upper)
+	}
+
 
 	return(pred_data)
 }
 
 # sample a load of points from the model so we can get a feel for what it predicts
 get_prediction_region_from_samples <- function(m) {
-	pred_ta = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 0))
-	pred_tp = sim(m, data = list(theta = seq(0,1, 0.1), targ_pr = 1))
+	pred_ta = sim(m, data = list(theta = c(0, 1), targ_pr = 0))
+	pred_tp = sim(m, data = list(theta = c(0, 1), targ_pr = 1))
 
 	# get 97% HDPI
 	ta_PI = apply(pred_ta, 2, PI, prob = 0.97)
 	tp_PI = apply(pred_tp, 2, PI, prob = 0.97)
 
 	pred_lines = data.frame(
-		theta = rep(seq(0,1,0.1), 2),
-		targ_pr = rep(c("absent", "present"), each = 11),
+		theta = rep(c(0,1), 2),
+		targ_pr = rep(c("absent", "present"), each = 2),
 		rbind(t(ta_PI), t(tp_PI)))
 	names(pred_lines)[3:4] = c("lower", "upper")
 
+	pred_lines$targ_pr <- as.factor(pred_lines$targ_pr)
+	levels(pred_lines$targ_pr) <- c("absent", "present")
 	return(pred_lines)		
 }
 
@@ -60,10 +92,10 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 		aes(x = theta, y = rt, colour = as.factor(targ_pr)),
 		shape = 3, alpha = 0.2, show.legend = FALSE) 
 	# spec theme
-	plt <- plt + scale_x_continuous("search difficulty", limits = c(0, 1))
-	plt <- plt + scale_y_continuous("reaction time")
+	plt <- plt + scale_x_continuous("search difficulty", 
+		limits = c(0, 1), expand = c(0, 0))
 	if (lt == TRUE) {
-		plt = plt + scale_y_continuous(trans = log2_trans())
+		plt = plt + scale_y_continuous("reaction time", trans = log2_trans())
 	}
 	plt <- plt + scale_fill_discrete(name = "target present")
 	plt <- plt + ggtitle(title_text)
@@ -76,72 +108,24 @@ plot_model_simple <- function(pred_lines, model_lines, title_text, lt) {
 # load in data 
 load("scratch/processed_data_nar.rda")
 
-
 #################################################################
+# plot simple models
+#################################################################
+
+
 # model 1 - getting started
-#################################################################
-
 load("scratch/models/m_tp_diff_1")
-precis(m_tp_diff_1)
+process_model(m_tp_diff_1, FALSE, "very wrong")
 
-# extract samples from model
-post <- extract.samples(m_tp_diff_1)
 
-# plot posterior distributions for parameters!
-dens(post$a)
-dens(post$b_diff)
-dens(post$b_tp)
-
-# get HDPIs for regression lines and predictions
-model_lines <- get_hpdi_region_from_samples(post, ln = FALSE)
-pred_lines <- get_prediction_region_from_samples(m_tp_diff_1)
-
-# plot predictions
-plot_model_simple(pred_lines, model_lines, 'normal and crap', FALSE)
-
-#################################################################
 # model 2 - using log-normal distribution
-#################################################################
-
 load("scratch/models/m_tp_diff_2")
-precis(m_tp_diff_2)
-
-#### extract samples from model ####
-post <- extract.samples(m_tp_diff_2)
-
-# plot posterior distributions for parameters!
-dens(post$a)
-dens(post$b_diff)
-dens(post$b_tp)
-
-model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(m_tp_diff_2)
-
-# plot predictions
-plot_model_simple(pred_lines, model_lines, 'log-normal and crap', TRUE)
+process_model(m_tp_diff_2, TRUE, "use log-normal distribution")
 
 
-#################################################################
 # model 3 - adding an interaction
-#################################################################
-
 load("scratch/models/m_tp_diff_3")
-precis(m_tp_diff_3)
-
-# extract samples from model
-post <- extract.samples(m_tp_diff_3)
-
-# plot posterior distributions for parameters!
-dens(post$a)
-dens(post$b_diff)
-dens(post$b_tp)
-
-# get HDPIs for regression lines and predictions
-model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(m_tp_diff_3)
-
-# plot predictions
-plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap', TRUE)
+process_model(m_tp_diff_3, TRUE, "allow interaction")
 
 #################################################################
 # compare these simple models using IC
@@ -154,19 +138,4 @@ compare(m_tp_diff_3, m_tp_diff_2)
 #################################################################
 
 load("scratch/models/m_tp_diff_4")
-precis(m_tp_diff_4)
-
-# extract samples from model
-post <- extract.samples(m_tp_diff_4)
-
-# plot posterior distributions for parameters!
-dens(post$a)
-dens(post$b_diff)
-dens(post$b_tp)
-
-# get HDPIs for regression lines and predictions
-model_lines <- get_hpdi_region_from_samples(post, ln = TRUE)
-pred_lines <- get_prediction_region_from_samples(m_tp_diff_4)
-
-# plot predictions
-plot_model_simple(pred_lines, model_lines, 'log-normal with interaction, still crap, better priors', TRUE)
+process_model(m_tp_diff_4, TRUE, "switch to better priors")
