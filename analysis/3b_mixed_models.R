@@ -58,7 +58,7 @@ m_tp_diff_2 <- map2stan(
 	    b_tp ~ dnorm(-1, 1),
 	    b_tp_diff ~ dnorm(-1, 1),
 	    sigma ~ dcauchy(0, 1),
-	    sig_p ~ dcauchy(0, 1)),
+	    sig_p ~ dcauchy(0, 10)),
 	data = df)
 
 #### save models into a subfolder within scratch ####

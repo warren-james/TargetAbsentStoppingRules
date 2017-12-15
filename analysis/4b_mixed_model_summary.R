@@ -11,7 +11,7 @@ library(ggthemes)
 get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
 	
 	pred_data <- list(
-		participant <- rep(1:length(unique(df$participant)), each = 4),
+		participant = rep(1:length(unique(df$participant)), each = 4),
 		theta =   rep(c(0.12, 0.88, 0.12, 0.88), length(unique(df$participant))),
 		targ_pr = rep(c(0, 0, 1, 1), length(unique(df$participant))))
 
@@ -38,14 +38,6 @@ get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
 # facet plot mixed model
 plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
 	plt <-  ggplot()	
-	# # add prediction range
-	# plt <- plt + geom_ribbon(data = pred_lines, 
-	# 	aes(
-	# 	x = theta, 
-	# 	ymin = lower,
-	# 	ymax = upper,
-	# 	fill = targ_pr),
-	# 	alpha = 0.5)
 	# add model fit
 	plt <- plt + geom_ribbon(data = model_lines, 
 		aes(x = theta, ymin = lower, ymax = upper, fill = targ_pr))
@@ -57,7 +49,6 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
 	plt <- plt + scale_x_continuous("search difficulty", 
 		limits = c(0, 1), expand = c(0, 0))
 	plt <- plt + scale_y_continuous(name = "reaction time", trans = log2_trans(), limits = c(0.5, 32))
-
 	plt <- plt + scale_fill_discrete(name = "target present")
 	plt <- plt + ggtitle(title_text)
 	plt <- plt + theme_bw()
@@ -104,11 +95,11 @@ participant_range <- c(
 
 plt <- ggplot()
 plt <- plt + geom_ribbon(aes(
-		x = 0:44,
+		x = 0:(length(unique(df$participant))+1),
 		ymin = participant_range[1], ymax = participant_range[2]),
 	alpha = 0.6, fill = "orangered3")
 plt <- plt + geom_ribbon(aes(
-		x = 0:44,
+		x = 0:(length(unique(df$participant))+1),
 		ymin = exp(quantile(post$a, 0.025)),
 		ymax = exp(quantile(post$a, 0.975))), 
 	alpha = 1.0, fill = "steelblue1")
