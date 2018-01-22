@@ -227,6 +227,9 @@ Difficulty was also changed to be called theta
 
 #rescale difficulty for the models
 df$theta <- round(df$difficulty/pi, digits = 3) 
+
+# create a centred version 
+df$theta_c <- df$theta - mean(df$theta)
 ```
 
 Target presence is converted using "as.numeric()" 
