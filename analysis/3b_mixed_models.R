@@ -88,7 +88,7 @@ m_tp_diff_3 <- map2stan(
 save(m_tp_diff_3, file = "scratch/models/m_tp_diff_mixed_3")
 
 
-#### tre the same again using centred diff data ####
+#### the the same again using centred diff data ####
 m_tp_diff_4 <- map2stan(
   alist(
     rt ~ dlnorm(mu, sigma),
@@ -171,3 +171,26 @@ m_tp_diff_7 <- map2stan(
   data = df_TA)
 
 save(m_tp_diff_7, file = "scratch/models/m_tp_diff_mixed_7")
+
+
+#### NB: might want to use dexp(mean) instead of dcauchy(0,1) to avoid convergence? ####
+
+##########################
+#### try using dexp() ####
+##########################
+
+m_tp_diff_8 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma),
+    mu <- a + a_p[participant] + b_diff*theta_c + b_tp*targ_pr + b_tp_diff*targ_pr*theta_c,  
+    # specify priors!
+    a ~ dnorm(1, 10),
+    a_p[participant] ~ dnorm(0, sig_p),
+    b_diff ~ dnorm(1, 3), 
+    b_tp ~ dnorm(-1, 3),
+    b_tp_diff ~ dnorm(-1, 3),
+    sigma ~ dexp(1),
+    sig_p ~ dexp(1)),
+  data = df)
+
+save(m_tp_diff_8, file = "scratch/models/m_tp_diff_mixed_8")
