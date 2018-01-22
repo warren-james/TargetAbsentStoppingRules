@@ -236,6 +236,9 @@ Target presence is converted using "as.numeric()"
 
 ```{r use as.numeric() on targ_pr}
 df$targ_pr <- as.numeric(df$targ_pr)
+
+# This causes 0 to be 2, so we need to change that back for dummy variables 
+df$targ_pr[df$targ_pr == 2] <- 0 
 ```
 We also created a dataset just to look at correct trials. 
 

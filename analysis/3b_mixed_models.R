@@ -107,3 +107,49 @@ m_tp_diff_4 <- map2stan(
 save(m_tp_diff_4, file = "scratch/models/m_tp_diff_mixed_4")
 
 
+###########################################################
+# Still some divergent sampling problems
+# adding in a control = list(adapt_delta = 0.99)
+###########################################################
+
+m_tp_diff_5 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma),
+    mu <- a + a_p[participant] + b_diff*theta_c + b_tp*targ_pr + b_tp_diff*targ_pr*theta_c,  
+    # specify priors!
+    a ~ dnorm(1, 10),
+    a_p[participant] ~ dnorm(0, sig_p),
+    b_diff ~ dnorm(1, 3), 
+    b_tp ~ dnorm(-1, 3),
+    b_tp_diff ~ dnorm(-1, 3),
+    sigma ~ dcauchy(0, 10),
+    sig_p ~ dcauchy(0, 10)),
+  data = df, control = list(adapt_delta = 0.99))
+
+#### save models into a subfolder within scratch ####
+save(m_tp_diff_5, file = "scratch/models/m_tp_diff_mixed_5")
+
+
+#############################
+#### Try more iterations ####
+#############################
+
+m_tp_diff_6 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma),
+    mu <- a + a_p[participant] + b_diff*theta_c + b_tp*targ_pr + b_tp_diff*targ_pr*theta_c,  
+    # specify priors!
+    a ~ dnorm(1, 10),
+    a_p[participant] ~ dnorm(0, sig_p),
+    b_diff ~ dnorm(1, 3), 
+    b_tp ~ dnorm(-1, 3),
+    b_tp_diff ~ dnorm(-1, 3),
+    sigma ~ dcauchy(0, 10),
+    sig_p ~ dcauchy(0, 10)),
+  data = df, iter = 8000, warmup = 4000)
+
+#### save models into a subfolder within scratch ####
+save(m_tp_diff_6, file = "scratch/models/m_tp_diff_mixed_4")
+
+
+
