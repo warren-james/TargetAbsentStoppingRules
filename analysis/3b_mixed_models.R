@@ -149,7 +149,25 @@ m_tp_diff_6 <- map2stan(
   data = df, iter = 8000, warmup = 4000)
 
 #### save models into a subfolder within scratch ####
-save(m_tp_diff_6, file = "scratch/models/m_tp_diff_mixed_4")
+save(m_tp_diff_6, file = "scratch/models/m_tp_diff_mixed_6")
 
+#######################################
+#### Maybe try with only TA trials ####
+#######################################
 
+# setup TA data 
+df_TA <- df[df$targ_pr == 0,]
 
+m_tp_diff_7 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma),
+    mu <- a + a_p[participant] + b_diff*theta_c, 
+    # specify priors!
+    a ~ dnorm(1, 10),
+    a_p[participant] ~ dnorm(0, sig_p),
+    b_diff ~ dnorm(1, 3),
+    sigma ~ dcauchy(0, 10),
+    sig_p ~ dcauchy(0, 10)),
+  data = df_TA)
+
+save(m_tp_diff_7, file = "scratch/models/m_tp_diff_mixed_7")
