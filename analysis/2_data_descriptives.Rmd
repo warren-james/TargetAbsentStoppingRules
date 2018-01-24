@@ -246,7 +246,7 @@ We also created a dataset just to look at correct trials.
 df_correct_only <- df[df$correct == 1,]
 ```
 
-``` {r creat save file, include=FALSE}
+``` {r create save file, include=FALSE}
 # remove everything but the df 
 rm(list=ls()[!(ls() %in% c("df","df_correct_only"))])
 
@@ -254,7 +254,21 @@ rm(list=ls()[!(ls() %in% c("df","df_correct_only"))])
 save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 ````
 
+As target absent judegemnts were our primary interest, we decided to create a dataset of only "Target Absent" judgements. The thought process is that making a Target Present judgement is due to detecting the target, whereas we are interested in how people make the decision that the target is not there.
 
+```{r Create dataset of only TA judgement trials}
+# add column
+df$TATP <- 0
 
+# define when it's TA or TP
+df$TATP[df$key == "l"] <- "TP"
+df$TATP[df$key == "r"] <- "TA"
+
+# version with only TA judgements
+df_TA <- df[df$TATP == "TA",]
+
+# save this 
+save(df_TA, file = "scratch/processed_data_nar_TA.rda")
+```
 
 
