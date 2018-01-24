@@ -86,3 +86,35 @@ m_ta_only_3 <- map2stan(
 
 # save the model 
 save(m_ta_only_3, file = "scratch/models/m_ta_only_3")
+
+
+##### temp #########
+# with fixed effects for block_type
+# I think that's what it is anyway, but I could be wrong
+
+m_ta_only_temp <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma), 
+    mu <-  A + B_theta + B_isra + B_issi,
+    A <- a + a_p[participant],
+    B_theta <- (b_theta + b_theta_p[participant]) * theta, 
+    B_isra <- b_isra*isra, 
+    B_issi <- b_issi*issi, 
+    # # adaptive priors
+    c(a_p, b_theta_p)[participant] ~ dmvnormNC(sigma_p, Rho),
+    
+    # fixed priors  
+    a ~ dnorm(1, 3),
+    b_theta ~ dnorm(1,3),
+    b_isra ~ dnorm(1,3),
+    b_issi ~ dnorm(1,3),
+    sigma ~ dcauchy(0, 3),
+    sigma_p ~ dcauchy(0, 3),
+    Rho ~ dlkjcorr(4)
+  ),
+  data = df,
+  iter = 1000, warmup = 1000, chains = 3, cores = 3)
+
+# save the model 
+save(m_ta_only_temp, file = "scratch/models/m_ta_only_temp")
+
