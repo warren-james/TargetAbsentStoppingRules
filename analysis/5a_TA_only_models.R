@@ -31,7 +31,6 @@ data = df)
 # save the model 
 save(m_ta_only_1, file = "scratch/models/m_ta_only_1")
 
-
 ########## Model 2 #########
 # Add in a slope for Theta #
 ############################
@@ -71,9 +70,9 @@ m_ta_only_3 <- map2stan(
     sigma ~ dcauchy(0, 3),
     sigma_p ~ dcauchy(0, 3),
     Rho ~ dlkjcorr(2)
-
   ),
-  data = df)
+  data = df,
+  iter = 5000, warmup = 1000, chains = 3, cores = 3)
 
 # save the model 
 save(m_ta_only_3, file = "scratch/models/m_ta_only_3")
