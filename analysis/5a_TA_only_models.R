@@ -53,7 +53,7 @@ m_ta_only_2 <- map2stan(
     Rho ~ dlkjcorr(2)
   ),
   data = df,
-  iter = 5000, warmup = 1000, chains = 3, cores = 3)
+  iter = 1000, warmup = 1000, chains = 3, cores = 3)
 
 # save the model 
 save(m_ta_only_2, file = "scratch/models/m_ta_only_2")
@@ -67,10 +67,10 @@ m_ta_only_3 <- map2stan(
   alist(
     rt ~ dlnorm(mu, sigma), 
     mu <-  A + B_theta + B_isra + B_issi,
-    A = a + a_p[participant],
-    B_theta = (b_theta + b_theta_p[participant]) * theta, 
-    B_isra = (b_isra + b_isra_p[participant]) * isra, 
-    B_issi = (b_issi + b_issi_p[participant]) * issi, 
+    A <- a + a_p[participant],
+    B_theta <- (b_theta + b_theta_p[participant]) * theta, 
+    B_isra <- (b_isra + b_isra_p[participant]) * isra, 
+    B_issi <- (b_issi + b_issi_p[participant]) * issi, 
     # # adaptive priors
     c(a_p, b_theta_p, b_isra, b_issi)[participant] ~ dmvnormNC(sigma_p, Rho),
 
@@ -82,7 +82,7 @@ m_ta_only_3 <- map2stan(
     Rho ~ dlkjcorr(4)
   ),
   data = df,
-  iter = 5000, warmup = 1000, chains = 3, cores = 3)
+  iter = 1000, warmup = 1000, chains = 3, cores = 3)
 
 # save the model 
 save(m_ta_only_3, file = "scratch/models/m_ta_only_3")
