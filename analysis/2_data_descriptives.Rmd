@@ -249,6 +249,13 @@ df$isra <- ifelse(df$block_type == "random", 1,0)
 df$issi <- ifelse(df$block_type == "sinewave",1,0)
 ```
 
+Need to fix participant so it is a continuous string of numbers, otherwise R gets confused
+
+```{r redo participant coding}
+df$participant <- as.factor(df$participant)
+df$participant <- as.numeric(df$participant)
+```
+
 We also created a dataset just to look at correct trials. 
 
 ```{r make only correct trials dataset}
