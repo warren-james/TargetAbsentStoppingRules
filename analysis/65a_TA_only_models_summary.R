@@ -48,7 +48,8 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
   # spec theme
   plt <- plt + scale_x_continuous("search difficulty", 
     limits = c(0, 1), expand = c(0, 0))
-  plt <- plt + scale_y_continuous(name = "reaction time", trans = log2_trans(), limits = c(0.5, 32))
+  plt <- plt + scale_y_continuous(name = "reaction time", trans = log2_trans())#, limits = c(0.5, 32))
+  #plt <- plt + coord_cartesian(ylim = c(0,60), xlim = c(0,1))
   #plt <- plt + scale_fill_discrete(name = "target present")
   plt <- plt + ggtitle(title_text)
   plt <- plt + theme_bw()
