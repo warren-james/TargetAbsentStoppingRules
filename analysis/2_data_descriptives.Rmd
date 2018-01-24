@@ -240,6 +240,15 @@ df$targ_pr <- as.numeric(df$targ_pr)
 # This causes 0 to be 2, so we need to change that back for dummy variables 
 df$targ_pr[df$targ_pr == 2] <- 0 
 ```
+
+We created dummy variables for the contrasts between block_type. Blocked being 0
+
+```{r Create dummy variables for block_type}
+df$isra <- ifelse(df$block_type == "random", 1,0) 
+
+df$issi <- ifelse(df$block_type == "sinewave",1,0)
+```
+
 We also created a dataset just to look at correct trials. 
 
 ```{r make only correct trials dataset}
