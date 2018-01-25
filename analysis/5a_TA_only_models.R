@@ -118,3 +118,41 @@ m_ta_only_temp <- map2stan(
 # save the model 
 save(m_ta_only_temp, file = "scratch/models/m_ta_only_temp")
 
+
+
+
+
+
+#### same as above but instead using coerce_index function ####
+
+#make block_type_id 
+df$block_type_id <- coerce_index(df$block_type)
+
+# run model
+m_ta_only_temp_2 <- map2stan(
+   alist(
+    rt ~ dlnorm(mu, sigma), 
+    mu <-  A + B_theta,
+    A <- a + a_p[participant] + a_bt[block_type_id],
+    B_theta <- (b_theta + b_theta_p[participant]) * theta, 
+    # # adaptive priors
+    c(a_p, b_theta_p)[participant] ~ dmvnormNC(sigma_p, Rho),
+   
+    
+    # fixed priors  
+    a ~ dnorm(1, 3),
+    a_bt[block_type_id] ~ dnorm(0,sigma_bt),
+    b_theta ~ dnorm(1,3),
+    #b_isra ~ dnorm(1,3),
+    #b_issi ~ dnorm(1,3),
+    sigma ~ dcauchy(0, 3),
+    sigma_p ~ dcauchy(0, 3),
+    sigma_bt ~ dcauchy(0,3),
+    Rho ~ dlkjcorr(4)
+  ),
+  data = df,
+  iter = 1000, warmup = 1000, chains = 3, cores = 3)
+
+# save the file 
+save(m_ta_only_temp_2, file = "scratch/models/m_ta_only_temp_2")
+

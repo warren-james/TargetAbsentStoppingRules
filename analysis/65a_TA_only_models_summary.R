@@ -102,7 +102,7 @@ plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
 # model 2 - getting started
 #################################################################
 
-load("scratch/models/m_ta_only_1")
+load("scratch/models/m_ta_only_2")
 precis(m_ta_only_2)
 
 # extract samples from model
