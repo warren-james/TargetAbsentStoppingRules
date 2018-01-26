@@ -274,6 +274,11 @@ As target absent judegemnts were our primary interest, we decided to create a da
 
 ```{r Create dataset of only TA judgement trials}
 # add column
+#### NB very strange bug here... makes correct and targ_pr match so could be giving incorrect information ####
+# reloading the df data set seems to fix it for some reason?
+rm(list = ls())
+load("scratch/processed_data.rda")
+
 df$TATP <- 0
 
 # define when it's TA or TP
@@ -282,6 +287,15 @@ df$TATP[df$key == "r"] <- "TA"
 
 # version with only TA judgements
 df_TA <- df[df$TATP == "TA",]
+
+# need to redo the dummy variable coding for block_type
+df_TA$isra <- ifelse(df_TA$block_type == "random", 1,0) 
+
+df_TA$issi <- ifelse(df_TA$block_type == "sinewave",1,0)
+
+# tidy up
+rm(df)
+df_TA <- df_TA[complete.cases(df_TA),]
 
 # save this 
 save(df_TA, file = "scratch/processed_data_nar_TA.rda")
