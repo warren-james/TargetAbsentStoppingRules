@@ -15,6 +15,15 @@ knitr::opts_chunk$set(fig.width=12, fig.height=6.5)
 df$difficulty <- round(df$difficulty, digits = 1)
 ```
 
+```{r introduce TATP variable}
+df$TATP <- 0 
+
+# Say when it's TA and when it's TP 
+df$TATP[df$key == "l"] <- "TP"
+df$TATP[df$key == "r"] <- "TA"
+
+```
+
 ```{r remove the Essex SIBL data, include=FALSE}
 toberemoved <- which(df$site == "Essex" & df$group == "SIBL")
 df <- df[-toberemoved,]
@@ -154,11 +163,12 @@ mean_acc_plot
 ```
 
 ```{r make some density plots, include=FALSE}
-# make targ_pr a factor 
-df$targ_pr <- as.factor(df$targ_pr)
 
 # make separate density plot data frame 
 dense_data <- df
+
+# make targ_pr a factor 
+dense_data$targ_pr <- as.factor(dense_data$targ_pr)
 
 # make difficulty a factor just for this 
 dense_data$difficulty <- as.factor(dense_data$difficulty)
@@ -232,15 +242,6 @@ df$theta <- round(df$difficulty/pi, digits = 3)
 df$theta_c <- df$theta - mean(df$theta)
 ```
 
-Target presence is converted using "as.numeric()" 
-
-```{r use as.numeric() on targ_pr}
-df$targ_pr <- as.numeric(df$targ_pr)
-
-# This causes 0 to be 2, so we need to change that back for dummy variables 
-df$targ_pr[df$targ_pr == 2] <- 0 
-```
-
 We created dummy variables for the contrasts between block_type. Blocked being 0
 
 ```{r Create dummy variables for block_type}
@@ -273,29 +274,11 @@ save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 As target absent judegemnts were our primary interest, we decided to create a dataset of only "Target Absent" judgements. The thought process is that making a Target Present judgement is due to detecting the target, whereas we are interested in how people make the decision that the target is not there.
 
 ```{r Create dataset of only TA judgement trials}
-# add column
-#### NB very strange bug here... makes correct and targ_pr match so could be giving incorrect information ####
-# reloading the df data set seems to fix it for some reason?
-rm(list = ls())
-load("scratch/processed_data.rda")
-
-df$TATP <- 0
-
-# define when it's TA or TP
-df$TATP[df$key == "l"] <- "TP"
-df$TATP[df$key == "r"] <- "TA"
-
-# version with only TA judgements
+# subset the data 
 df_TA <- df[df$TATP == "TA",]
 
-# need to redo the dummy variable coding for block_type
-df_TA$isra <- ifelse(df_TA$block_type == "random", 1,0) 
-
-df_TA$issi <- ifelse(df_TA$block_type == "sinewave",1,0)
-
-# tidy up
-rm(df)
-df_TA <- df_TA[complete.cases(df_TA),]
+#tidy up
+rm(df, df_correct_only)
 
 # save this 
 save(df_TA, file = "scratch/processed_data_nar_TA.rda")
