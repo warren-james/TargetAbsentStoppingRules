@@ -113,7 +113,7 @@ m_ta_only_temp <- map2stan(
     Rho ~ dlkjcorr(4)
   ),
   data = df,
-  iter = 1000, warmup = 1000, chains = 3, cores = 3)
+  iter = 2000, warmup = 1000, chains = 3, cores = 3)
 
 # save the model 
 save(m_ta_only_temp, file = "scratch/models/m_ta_only_temp")
@@ -151,7 +151,7 @@ m_ta_only_temp_2 <- map2stan(
     Rho ~ dlkjcorr(4)
   ),
   data = df,
-  iter = 1000, warmup = 1000, chains = 3, cores = 3)
+  iter = 2000, warmup = 1000, chains = 3, cores = 3)
 
 # save the file 
 save(m_ta_only_temp_2, file = "scratch/models/m_ta_only_temp_2")
