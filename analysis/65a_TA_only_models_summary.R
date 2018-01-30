@@ -57,6 +57,10 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
   ggsave("scratch/random_incpt_facet.pdf", width = 10, height = 10)
 }
 
+# to "fix" the way rethinking orders numbers
+sequence <- c(1,10,11,12,13,14,15,16,17,18,19,2,20,21,22,23,24,25,26,27,
+              28,29,3,30,31,32,33,34,35,36,37,38,39,4,40,41,42,43,44,45,
+              46,47,48,49,5,50,6,7,8,9)
 
 # load in data 
 load("scratch/processed_data_nar_TA.rda")
@@ -78,7 +82,7 @@ post <- extract.samples(m_ta_only_1)
 #  this is a horrible hack, what's a nicer way of doing this?
 intercepts_p <- as.tibble(t(as.tibble(lapply(as.data.frame(post$a_p), quantile, probs = c(0.025, 0.975)))))
 names(intercepts_p) = c("lower", "upper")
-intercepts_p$participant = 1:nrow(intercepts_p)
+intercepts_p$participant = c(sequence)
 # this is a little incorrect... should do everything with samples, then estimate mean, ec
 # will fix later!
 intercepts_p$lower <- exp(intercepts_p$lower + mean(post$a))
@@ -94,6 +98,8 @@ participant_range <- c(
 
 model_lines <- get_hpdi_region_from_samples(m_ta_only_1, post, TRUE)
 
+# alter the participant variable in model_lines so it's right
+model_lines$participant <- rep(sequence, each=4)
 
 plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
 
