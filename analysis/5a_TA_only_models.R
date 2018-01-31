@@ -124,7 +124,8 @@ save(m_ta_only_temp, file = "scratch/models/m_ta_only_temp")
 
 
 #### same as above but instead using coerce_index function ####
-
+# need to re-run this one... saved model is wrong
+# has both dummy and index variable coding...
 #make block_type_id 
 df$block_type_id <- coerce_index(df$block_type)
 

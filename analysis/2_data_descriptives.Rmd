@@ -1,6 +1,9 @@
 ---
 title: "Target Absent Stopping Rules descriptives"
-output: pdf_document
+output: 
+  pdf_document:
+  toc: true
+  toc_depth: 2
 fig_height: 4
 fig_width: 6
 ---
@@ -299,3 +302,8 @@ boxplt <- boxplt + geom_boxplot()
 
 boxplt
 ```
+
+# Notes
+
+## Internal numbering
+Rethinking's internal numbering is like 1,10,11,etc. so this needs to be considered when extracting information from the models. For example, when looking at the intercepts, a_p[2] actually corresponds to participant 10, not 2. This fix has been added to the modelling scripts where this is important. 

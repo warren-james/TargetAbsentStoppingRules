@@ -134,6 +134,8 @@ participant_range <- c(
 
 model_lines <- get_hpdi_region_from_samples(m_ta_only_2, post, TRUE)
 
+# alter the participant variable in model_lines so it's right
+model_lines$participant <- rep(sequence, each=4)
 
 plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
 
