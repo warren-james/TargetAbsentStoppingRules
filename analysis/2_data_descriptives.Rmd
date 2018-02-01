@@ -280,6 +280,10 @@ save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 
 As target absent judegemnts were our primary interest, we decided to create a dataset of only "Target Absent" judgements. The thought process is that making a Target Present judgement is due to detecting the target, whereas we are interested in how people make the decision that the target is not there.
 
+``` {r makes block type an index variable}
+df$block_type_id <- coerce_index(df$block_type)
+```
+
 ```{r Create dataset of only TA judgement trials}
 # subset the data 
 df_TA <- df[df$TATP == "TA",]
@@ -302,6 +306,7 @@ boxplt <- boxplt + geom_boxplot()
 
 boxplt
 ```
+
 
 # Notes
 

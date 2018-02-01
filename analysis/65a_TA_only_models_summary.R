@@ -140,3 +140,73 @@ model_lines$participant <- rep(sequence, each=4)
 plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
 
 
+
+
+########################################################################################
+# below doesn't work just yet 
+#### For model with varying intercepts of block type ####
+df <- df_TA
+
+load("scratch/models/m_ta_only_temp_2")
+precis(m_ta_only_temp_2)
+
+# extract samples from model
+post <- extract.samples(m_ta_only_temp_2)
+
+# get 97% credible interval for regression lines
+get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
+  
+  pred_data <- list(
+    participant = rep(1:length(unique(df$participant)), each = 4),
+    theta =   rep(c(0.12, 0.88, 0.12, 0.88, 0.12, 0.88), length(unique(df$participant))),
+    block_type_id = rep(c(1,1,2,2,3,3), length(unique(df$participant))))#,
+  #targ_pr = rep(c(0, 0, 1, 1), length(unique(df$participant))))
+  
+  mu <- link(m, data = pred_data)
+  mu.PI <- apply(mu, 2, PI)
+  
+  pred_data$lower <- mu.PI[1,]
+  pred_data$upper <- mu.PI[2,]
+  
+  pred_data$block_type_id <- as.factor(pred_data$block_type_id)
+  levels(pred_data$block_type_id) <- c("blocked", "random", "sinewave")
+  
+  if (ln == TRUE) { 
+    pred_data$lower <- exp(pred_data$lower)
+    pred_data$upper <- exp(pred_data$upper)
+  }
+  
+  names(pred_data)[1] <- "participant"
+  pred_data <- as.data.frame(pred_data)
+  return(pred_data)
+}
+
+
+# facet plot mixed model
+plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
+  plt <-  ggplot()  
+  # add model fit
+  plt <- plt + geom_ribbon(data = model_lines, 
+                           aes(x = theta, ymin = lower, ymax = upper))#, fill = targ_pr))
+  # add empirical data points
+  plt <- plt + geom_jitter(data = df, 
+                           aes(x = theta, y = rt),
+                           shape = 3, alpha = 0.2, show.legend = FALSE) 
+  # spec theme
+  plt <- plt + scale_x_continuous("search difficulty", 
+                                  limits = c(0, 1), expand = c(0, 0))
+  plt <- plt + scale_y_continuous(name = "reaction time", trans = log2_trans())#, limits = c(0.5, 32))
+  #plt <- plt + coord_cartesian(ylim = c(0,60), xlim = c(0,1))
+  #plt <- plt + scale_fill_discrete(name = "target present")
+  plt <- plt + ggtitle(title_text)
+  plt <- plt + theme_bw()
+  plt <- plt + facet_wrap( ~ participant)
+  ggsave("scratch/random_incpt_facet.pdf", width = 10, height = 10)
+}
+
+model_lines <- get_hpdi_region_from_samples(m_ta_only_temp_2, post, TRUE)
+
+# alter the participant variable in model_lines so it's right
+model_lines$participant <- rep(sequence, each=4)
+
+
