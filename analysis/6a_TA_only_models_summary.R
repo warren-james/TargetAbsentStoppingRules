@@ -194,8 +194,9 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
   # add empirical data points
   plt <- plt + geom_jitter(data = df, 
                            aes(x = theta,
-                               y = rt),
-                           shape = 3, alpha = 0.2, show.legend = FALSE) 
+                               y = rt, 
+                               colour = block_type_id),
+                           shape = 3, alpha = 0.3, show.legend = FALSE) 
   # spec theme
   plt <- plt + scale_x_continuous("search difficulty", 
                                   limits = c(0, 1), expand = c(0, 0))
@@ -212,6 +213,9 @@ model_lines <- get_hpdi_region_from_samples(m_ta_only_temp_2, post, TRUE)
 
 # alter the participant variable in model_lines so it's right
 model_lines$participant <- rep(sequence, each=6)
+
+# prep data for plot 
+df$block_type_id <- as.factor(df$block_type_id)
 
 # make the plot
 plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
