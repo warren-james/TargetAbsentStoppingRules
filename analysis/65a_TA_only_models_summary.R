@@ -157,13 +157,12 @@ post <- extract.samples(m_ta_only_temp_2)
 get_hpdi_region_from_samples <- function(m, post, ln = TRUE) {
   
   pred_data <- list(
-    participant = rep(1:length(unique(df$participant)), each = 4),
+    participant = rep(1:length(unique(df$participant)), each = 6),
     theta =   rep(c(0.12, 0.88, 0.12, 0.88, 0.12, 0.88), length(unique(df$participant))),
-    block_type_id = rep(c(1,1,2,2,3,3), length(unique(df$participant))))#,
-  #targ_pr = rep(c(0, 0, 1, 1), length(unique(df$participant))))
+    block_type_id = rep(c(1,1,2,2,3,3), length(unique(df$participant))))
   
   mu <- link(m, data = pred_data)
-  mu.PI <- apply(mu, 2, PI)
+  mu.PI <- apply(as.data.frame(mu), 2, PI) # making it a data.frame seems to help?
   
   pred_data$lower <- mu.PI[1,]
   pred_data$upper <- mu.PI[2,]
@@ -187,10 +186,15 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
   plt <-  ggplot()  
   # add model fit
   plt <- plt + geom_ribbon(data = model_lines, 
-                           aes(x = theta, ymin = lower, ymax = upper))#, fill = targ_pr))
+                           aes(x = theta,
+                               ymin = lower,
+                               ymax = upper,
+                               fill = block_type_id),
+                           alpha = 0.5)
   # add empirical data points
   plt <- plt + geom_jitter(data = df, 
-                           aes(x = theta, y = rt),
+                           aes(x = theta,
+                               y = rt),
                            shape = 3, alpha = 0.2, show.legend = FALSE) 
   # spec theme
   plt <- plt + scale_x_continuous("search difficulty", 
@@ -207,6 +211,8 @@ plot_model_mixed_facet <- function(pred_lines, model_lines, title_text, lt) {
 model_lines <- get_hpdi_region_from_samples(m_ta_only_temp_2, post, TRUE)
 
 # alter the participant variable in model_lines so it's right
-model_lines$participant <- rep(sequence, each=4)
+model_lines$participant <- rep(sequence, each=6)
 
+# make the plot
+plot_model_mixed_facet(pred_lines, model_lines, "random intercepts", TRUE)
 
