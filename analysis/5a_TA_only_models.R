@@ -218,6 +218,8 @@ m_ta_only_temp_4 <- map2stan(
   data = df,
   iter = 2000, warmup = 1000, chains = 3, cores = 3)
 
+save(m_ta_only_temp_4, file = "scratch/models/m_ta_only_temp_4")
+
 #### with random effects #### 
 # Same as above, except with effects for participants
 # Not sure how to do this adaptive priors?
