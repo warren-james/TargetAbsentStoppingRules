@@ -218,4 +218,36 @@ m_ta_only_temp_4 <- map2stan(
   data = df,
   iter = 2000, warmup = 1000, chains = 3, cores = 3)
 
+#### with random effects #### 
+# Same as above, except with effects for participants
+# Not sure how to do this adaptive priors?
+
+m_ta_only_temp_5 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma), 
+    mu <-  A  + B_theta + B_blk + B_blk_th,
+    A <- a + a_p[participant],
+    B_theta <- (b_theta + b_theta_p[participant]) * theta, 
+    B_blk <- (b_issi + b_issi_p[participant])*issi +
+             (b_isra + b_isra_p[participant])*isra,
+    B_blk_th <- ((b_si_theta + b_si_theta_p)*issi +
+                 (b_ra_theta + b_ra_theta_p)*isra) * theta,
+    
+    # # adaptive priors
+    c(a_p, b_theta_p)[participant] ~ dmvnormNC(sigma_p, Rho),
+    
+    # fixed priors  
+    a ~ dnorm(1, 3),
+    b_theta ~ dnorm(1,3),
+    b_isra ~ dnorm(1,3),
+    b_issi ~ dnorm(1,3),
+    b_ra_theta ~ dnorm(1,3),
+    b_si_theta ~ dnorm(1,3),
+    sigma ~ dcauchy(0, 1),
+    sigma_p ~ dcauchy(0, 1),
+    Rho ~ dlkjcorr(4)
+  ),
+  data = df,
+  iter = 2000, warmup = 1000, chains = 3, cores = 3)
+
 
