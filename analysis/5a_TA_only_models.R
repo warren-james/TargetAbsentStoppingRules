@@ -192,6 +192,23 @@ m_ta_only_temp_3 <- map2stan(
 # This model has intercepts and slopes for block type
 # These effects aren't by participant though
 
+#### NB changes ####
+# the priors for b_ra_theta and b_si_theta were as follows:
+# b_ra_theta ~ dnorm(1,3)
+# b_si_theta ~ dnorm(1,3)
+# Same for their intercept values
+# b_isra ~ dnorm(1,3)
+# b_issi ~ dnorm(1,3)
+# But this is dumb. The best assumption to make is that block_type 
+# won't change anything (I know what I mean here) so the priors should
+# reflect this. As such, these were all changed to be dnorm(0,1)
+
+# Also, "a" can be a loosely informed prior based on Anna's data. 
+# remember, we are operating on a log scale, so this should be accounted for
+# Check 2_ for reasons for the prior for a
+
+#### Needs to be rerun with new priors ####
+
 m_ta_only_temp_4 <- map2stan(
   alist(
     rt ~ dlnorm(mu, sigma), 
@@ -205,14 +222,14 @@ m_ta_only_temp_4 <- map2stan(
     c(a_p, b_theta_p)[participant] ~ dmvnormNC(sigma_p, Rho),
     
     # fixed priors  
-    a ~ dnorm(1, 3),
+    a ~ dnorm(0.55,1),
     b_theta ~ dnorm(1,3),
-    b_isra ~ dnorm(1,3),
-    b_issi ~ dnorm(1,3),
-    b_ra_theta ~ dnorm(1,3),
-    b_si_theta ~ dnorm(1,3),
-    sigma ~ dcauchy(0, 1),
-    sigma_p ~ dcauchy(0, 1),
+    b_isra ~ dnorm(0,1),
+    b_issi ~ dnorm(0,1),
+    b_ra_theta ~ dnorm(0,1),
+    b_si_theta ~ dnorm(0,1),
+    sigma ~ dcauchy(0,1),
+    sigma_p ~ dcauchy(0,1),
     Rho ~ dlkjcorr(4)
   ),
   data = df,

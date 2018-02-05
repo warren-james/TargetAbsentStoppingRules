@@ -348,4 +348,28 @@ boxplt
 Rethinking's internal numbering is like 1,10,11,etc. so this needs to be considered when extracting information from the models. For example, when looking at the intercepts, a_p[2] actually corresponds to participant 10, not 2. This fix has been added to the modelling scripts where this is important. 
 
 ## Dummy Variable coding 
-This was used when looking at block type. For all models, "isra" refers to trial in the random condition, "issi" refers to trials in the sine wave condition
+This was used when looking at block type. For all models, "isra" refers to trial in the random condition, "issi" refers to trials in the sine wave condition.
+
+``` {r get log values for intercept etc., include = FALSE}
+anna_a_easy <- 1.75
+anna_a_easy_sd <- 0.13
+
+log_a_easy <- log(anna_a_easy)
+log_a_easy_sd <- log(anna_a_easy_sd)
+
+anna_a_hard <- 3.94
+anna_a_hard_sd <- 2.19
+
+log_a_hard <- log(anna_a_hard)
+log_a_hard_sd <- log(anna_a_hard_sd)
+
+```
+
+## Informed priors
+We can use the data from Anna's study to get a feel for what the intercept and slope should be in our model. 
+
+Remembering that we are operating on a log scale, we need to change the values so they are appropriate for the model.
+
+Anna's data suggests that at the easiest difficulty, the mean was `r anna_a_easy` (sd = `r anna_a_easy_sd`) for the easiest trials. For the hard trials it was `r anna_a_hard` (SD = `r anna_a_hard_sd`). 
+
+For our model, we should set the intercept value (or $a$ in the model) to be the log(`r anna_a_easy`)  which is `r round(log_a_easy, digits = 3)`. As for the $\sigma$ component of $a$ ~ dnorm(`r round(log_a_easy, digits = 3)`, $\sigma$), this can be set to 1 as this gives a resonable range for RTs.
