@@ -10,6 +10,7 @@ fig_width: 6
 
 ```{r setup, include=FALSE}
 library(tidyverse)
+library(rethinking)
 load("scratch/processed_data.rda")
 knitr::opts_chunk$set(fig.width=12, fig.height=6.5) 
 ```
@@ -220,6 +221,39 @@ density_plot_RABL_diff
 density_plot_SIBL_diff
 ```
 
+We took a look at trial number (across blocks) to look at whether there were any practice effects that may need to be taken account of when creating a model of the data. 
+
+```{r Looking at trial number}
+temp = group_by(df, difficulty, block_type, targ_pr, trial)
+trial_desc_stats = summarise(temp, mean_rt = mean(rt),
+                             median_rt = median(rt),
+                             sdev = sd(rt),
+                             N = length(rt), 
+                             se = sdev/sqrt(N),
+                             upper_mean = mean_rt + se,
+                             lower_mean = mean_rt - se,
+                             upper_median = median_rt + se,
+                             lower_median = median_rt - se,
+                             # log mean
+                             log_mean_rt = mean(log2(rt)),
+                             log_sdev = sd(log2(rt)),
+                             log_se = log_sdev/sqrt(N),
+                             log_mean_upper = log_mean_rt + log_se,
+                             log_mean_lower = log_mean_rt - log_se,
+                             # log median
+                             log_median_rt = median(log2(rt)),
+                             log_median_upper = log_median_rt + log_se,
+                             log_median_lower = log_median_rt - log_se)
+# tidy
+rm(temp)
+
+trial_plt = ggplot(trial_desc_stats, aes(trial, log_median_rt, colour = difficulty))
+trial_plt = trial_plt + geom_point()
+trial_plt = trial_plt + geom_smooth(method = lm)
+trial_plt = trial_plt + facet_grid(targ_pr~block_type)
+
+trial_plt
+```
 
 
 # Modelling data creation 
@@ -280,7 +314,7 @@ save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 
 As target absent judegemnts were our primary interest, we decided to create a dataset of only "Target Absent" judgements. The thought process is that making a Target Present judgement is due to detecting the target, whereas we are interested in how people make the decision that the target is not there.
 
-``` {r makes block type an index variable}
+``` {r makes block type an index variable, include = FALSE}
 df$block_type_id <- coerce_index(df$block_type)
 ```
 
@@ -301,7 +335,7 @@ Create some box plots of participants RTs for TA trials only
 df_TA_bxplt <- df_TA
 df_TA_bxplt$participant <- as.factor(df_TA_bxplt$participant)
 
-boxplt <- ggplot(df_TA_bxplt, aes(x = participant, y = log(rt)))
+boxplt <- ggplot(df_TA_bxplt, aes(x = participant, y = log2(rt)))
 boxplt <- boxplt + geom_boxplot()
 
 boxplt
@@ -312,3 +346,6 @@ boxplt
 
 ## Internal numbering
 Rethinking's internal numbering is like 1,10,11,etc. so this needs to be considered when extracting information from the models. For example, when looking at the intercepts, a_p[2] actually corresponds to participant 10, not 2. This fix has been added to the modelling scripts where this is important. 
+
+## Dummy Variable coding 
+This was used when looking at block type. For all models, "isra" refers to trial in the random condition, "issi" refers to trials in the sine wave condition
