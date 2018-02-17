@@ -270,3 +270,34 @@ m_ta_only_temp_5 <- map2stan(
   iter = 2000, warmup = 1000, chains = 3, cores = 3)
 
 
+#### add in varying slopes for block_type: Index variable coding ####
+# attempt to use index variable coding to make things a bit more 
+# straightforward
+
+m_ta_only_temp_6 <- map2stan(
+  alist(
+    rt ~ dlnorm(mu, sigma), 
+    mu <-  A + B_theta,
+    A <- + a_bt[block_type_id] + a_p[participant],
+    B_theta <- (b_theta_bt[block_type_id] + b_theta_p[participant]) * theta, 
+    
+    # adaptive priors
+    c(a_p, b_theta_p)[participant] ~ dmvnormNC(sigma_p, Rho_p),
+    
+    # fixed?
+    a_bt ~ dnorm(a, sigma_bt),
+    b_theta_bt ~ dnorm(b_theta, sigma_b_theta),
+    
+    # fixed priors  
+    a ~ dnorm(0.55, 1),
+    b_theta ~ dnorm(1,3),
+    sigma ~ dcauchy(0,1.5)
+    sigma_b_theta ~ dcauchy(0, 1.5),
+    sigma_p ~ dcauchy(0, 1.5),
+    sigma_bt ~ dcauchy(0,1.5),
+    Rho_p ~ dlkjcorr(4)
+  ),
+  data = df,
+  iter = 2000, warmup = 1000, chains = 3, cores = 3)
+
+

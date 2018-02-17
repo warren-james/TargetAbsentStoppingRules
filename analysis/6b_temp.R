@@ -260,5 +260,58 @@ plt <- plt + ggtitle("Model output for Block Type treated as a fixed effect") +
        fill = "Block Type")
 
 
+######################################################
+#### plotting attempts for dummy variable version ####
+##### allowing for random slopes and intercepts ######
+######################################################
+# load in data 
+load("scratch/processed_data_nar_TA.rda")
+
+# turn tibble into data.frame for map 
+df <- as.data.frame(df_TA)
+
+# tidy 
+rm(df_TA)
+
+# load in model 
+load("scratch/models/m_ta_only_temp_4")
+
+# sample posterior 
+post <- extract.samples(m_ta_only_temp_4)
+
+# how do we account for change with participant?
+# probably need to make something that produces a_p and b_theta_p
+# then get the slopes and intercepts based on that?
+
+# This is just the fixed stuff for the moment
+# get intercepts 
+mu.a_bl <- post$a
+mu.a_ra <- post$a + post$b_isra
+mu.a_si <- post$a + post$b_issi
+
+# get slopes 
+mu.b_bl <- post$b_theta
+mu.b_ra <- post$b_theta + post$b_ra_theta
+mu.b_si <- post$b_theta + post$b_si_theta
+
+# What about random effects for participants?
+# Can probably loop through these once I've figured out this part
+# something like the following 
+# m.a_a_p_bl[i] <- post$a + post$a_p[,i]?
+# that gets a participant's data, just need to get the loop working
+
+# define empty matrix: probably not needed
+# mu.a_p_bl <- matrix(numeric(0),nrow = 3000, ncol = 50)
+
+# random effects of participant 
+for(i in levels(unique(df$participant))){
+  temp <- post$a + post$a_p[i]
+  temp <- t(temp)
+  mu.a_p_bl <- cbind(mu.a_p_bl, temp)
+}
+
+
+
+
 
 
