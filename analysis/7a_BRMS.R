@@ -40,4 +40,3 @@ save(m1_rt_theta, file = "scratch/models/brm_m1")
 
 
 
-
