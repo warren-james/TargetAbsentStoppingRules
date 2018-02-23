@@ -33,7 +33,7 @@ rm(df_TA)
 m1_rt_theta <- brm(rt ~ theta + (1 + theta|participant),
                    data = df, family = lognormal,
                    prior = c(set_prior("normal(1,3)", class = "b", coef = "theta"),
-                             set_prior("normal(0.55,1)", class = "Intercept"),# think this sets intercept?
+                             set_prior("normal(0.55,1)", class = "Intercept"),
                              set_prior("cauchy(0,1.5)", class = "sd"),
                              set_prior("lkj(2)", class = "cor")), 
                    warmup = 1000, iter = 2000, chains = 4)
@@ -52,7 +52,7 @@ save(m1_rt_theta, file = "scratch/models/brm_m1")
 m2_rt_theta_bt <- brm(rt ~ theta + block_type + (1 + theta|participant),
                       data = df, family = lognormal,
                       prior = c(set_prior("normal(1,3)", class = "b", coef = "theta"),
-                                set_prior("normal(0.55,1)", class = "Intercept"),# think this sets intercept?
+                                set_prior("normal(0.55,1)", class = "Intercept"),
                                 set_prior("cauchy(0,1.5)", class = "sd"),
                                 set_prior("lkj(2)", class = "cor"),
                                 set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
@@ -70,7 +70,7 @@ save(m2_rt_theta_bt, file = "scratch/models/brm_m2")
 m3_rt_theta_bt <- brm(rt ~ (theta + block_type)^2 + (1 + theta|participant),
                       data = df, family = lognormal,
                       prior = c(set_prior("normal(1,3)", class = "b", coef = "theta"),
-                                set_prior("normal(0.55,1)", class = "Intercept"),# think this sets intercept?
+                                set_prior("normal(0.55,1)", class = "Intercept"),
                                 set_prior("cauchy(0,1.5)", class = "sd"),
                                 set_prior("lkj(2)", class = "cor"),
                                 set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
@@ -88,7 +88,7 @@ save(m3_rt_theta_bt, file = "scratch/models/brm_m3")
 m4_rt_theta_bt <- brm(rt ~ (theta + block_type)^2 + (1 + theta + block_type|participant),
                       data = df, family = lognormal,
                       prior = c(set_prior("normal(1,3)", class = "b", coef = "theta"),
-                                set_prior("normal(0.55,1)", class = "Intercept"),# think this sets intercept?
+                                set_prior("normal(0.55,1)", class = "Intercept"),
                                 set_prior("cauchy(0,1.5)", class = "sd"),
                                 set_prior("lkj(2)", class = "cor"),
                                 set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
