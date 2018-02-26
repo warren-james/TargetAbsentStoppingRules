@@ -95,7 +95,16 @@ m4_rt_theta_bt <- brm(rt ~ (theta + block_type)^2 + (1 + theta + block_type|part
                                 set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
                                 set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
                                 set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave")),
-                      warmup = 1000, iter = 2000, chains = 4)
+                      warmup = 1000, iter = 2000, chains = 4, 
+                      control = list(adapt_delta = 0.95))
 
 save(m4_rt_theta_bt, file = "scratch/models/brm_m4")
 
+# had issues with divergent samples, re-ren with control = list(adapt_delta = 0.95) added in
+# this removed the divergent transitions so the chains can be trusted to have converged
+
+####### Model 5 #######
+##### Add in cprt #####
+#######################
+# we should create a centred prt, or scaled, or both?
+# or maybe there's a way to tell the model that it isn't centred?
