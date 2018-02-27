@@ -108,3 +108,24 @@ save(m4_rt_theta_bt, file = "scratch/models/brm_m4")
 #######################
 # we should create a centred prt, or scaled, or both?
 # or maybe there's a way to tell the model that it isn't centred?
+# May be centred already in the code automatically?
+
+m5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + block_type|participant),
+                          data = df, family = lognormal,
+                          prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                    set_prior("normal(0,1)", class = "b", coef = "p_rt"),
+                                    set_prior("normal(0.55,1)", class = "Intercept"),
+                                    set_prior("cauchy(0,1.5)", class = "sd"),
+                                    set_prior("lkj(2)", class = "cor"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave")),
+                          warmup = 1000, iter = 2000, chains = 4, 
+                          control = list(adapt_delta = 0.95))
+
+save(m5_rt_theta_bt_prt, file = "scratch/models/brm_m5")
+
+
+# divergent transitions reached with warning of max_treedepth reached
+# should set this above 10 and run again

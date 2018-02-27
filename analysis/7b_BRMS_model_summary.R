@@ -90,6 +90,21 @@ plot(m4_effects, plot = FALSE)[[3]] +
   ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
   ggplot2::labs(y = "RT", x = "Theta")
 
+#### Model 5 
+# Added in a fixed effect of previous response time
+# at the moment, this has not been centred, but from what I've read this seems to happen 
+# automatically within this package
 
+# load model
+load("scratch/models/brm_m5")
 
+# marginal effects 
+m5_effects <- marginal_effects(m5_rt_theta_bt_prt)
+
+# make plots 
+plot(m5_effects, plot = TRUE)
+# use this to see which plots you would like to use
+# however, I think this makes it clear that we need to centre
+# also, we need to inlcude previous accuracy in this model...
+# need to look at contrasts
 
