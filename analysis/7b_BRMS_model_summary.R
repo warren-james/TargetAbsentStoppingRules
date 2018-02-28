@@ -73,10 +73,9 @@ rm(list = ls())
 #### Model 4 ####
 # This is the same as above, except now the effect of block_type has 
 # been added into the random effects structure 
-# need to compare this model to the previous one to see if adding this into the
-# random effects structure is worth it...
-# seems to be quite worth it... reduces the looic value by quite a lot, but does
-# allow for more error
+
+# NB: seems to be quite worth it... reduces the looic value by quite a lot. 
+# Also, divergence issues were fixed
 
 # load in model 
 load("scratch/models/brm_m4")
@@ -94,6 +93,10 @@ plot(m4_effects, plot = FALSE)[[3]] +
 # Added in a fixed effect of previous response time
 # at the moment, this has not been centred, but from what I've read this seems to happen 
 # automatically within this package
+
+# NB: running loo() on this and the previous models shows that this one fits the data a lot better
+# Still need to re run it with the increased tree depth though to make sure this is still the same 
+# after fixing divergence issues
 
 # load model
 load("scratch/models/brm_m5")

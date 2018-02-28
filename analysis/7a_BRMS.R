@@ -122,10 +122,52 @@ m5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + bloc
                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave")),
                           warmup = 1000, iter = 2000, chains = 4, 
-                          control = list(adapt_delta = 0.95))
+                          control = list(adapt_delta = 0.95, max_treedepth = 12))
 
 save(m5_rt_theta_bt_prt, file = "scratch/models/brm_m5")
 
+####### Model 6 #######
+# add in p_rt as rand #
+#######################
 
-# divergent transitions reached with warning of max_treedepth reached
-# should set this above 10 and run again
+m6_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + block_type + p_rt|participant),
+                          data = df, family = lognormal,
+                          prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                    set_prior("normal(0,1)", class = "b", coef = "p_rt"),
+                                    set_prior("normal(0.55,1)", class = "Intercept"),
+                                    set_prior("cauchy(0,1.5)", class = "sd"),
+                                    set_prior("lkj(2)", class = "cor"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave")),
+                          warmup = 1000, iter = 2000, chains = 4, 
+                          control = list(adapt_delta = 0.95, max_treedepth = 12))
+
+save(m6_rt_theta_bt_prt, file = "scratch/models/brm_m6")
+
+####### Model 7 #######
+# add in interaction  #
+#   with block_type   #
+#       and prt       #
+#######################
+
+m7_rt_theta_bt_prt <- brm(rt ~ theta + block_type + p_rt + (theta * block_type) + (p_rt * block_type) +
+                            (1 + theta + block_type + p_rt|participant),
+                          data = df, family = lognormal,
+                          prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                    set_prior("normal(0,1)", class = "b", coef = "p_rt"),
+                                    set_prior("normal(0.55,1)", class = "Intercept"),
+                                    set_prior("cauchy(0,1.5)", class = "sd"),
+                                    set_prior("lkj(2)", class = "cor"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom:p_rt"),
+                                    set_prior("normal(0,1)", class = "b", ceof = "block_typesinewave:p_rt")),
+                          warmup = 1000, iter = 2000, chains = 4, 
+                          control = list(adapt_delta = 0.95, max_treedepth = 12))
+
+save(m7_rt_theta_bt_prt, file = "scratch/models/brm_m7")
+
