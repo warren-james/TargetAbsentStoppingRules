@@ -126,6 +126,29 @@ m5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + bloc
 
 save(m5_rt_theta_bt_prt, file = "scratch/models/brm_m5")
 
+# This fits much better than the previous model (m4)
+###### Model 5.5 #######
+# add in random effect #
+#   for interaction    #
+########################
+
+#### TO RUN ####
+m5_5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + block_type + block_type*theta|participant),
+                          data = df, family = lognormal,
+                          prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                    set_prior("normal(0,1)", class = "b", coef = "p_rt"),
+                                    set_prior("normal(0.55,1)", class = "Intercept"),
+                                    set_prior("cauchy(0,1.5)", class = "sd"),
+                                    set_prior("lkj(2)", class = "cor"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave")),
+                          warmup = 1000, iter = 2000, chains = 4, 
+                          control = list(adapt_delta = 0.95, max_treedepth = 12))
+
+save(m5_5_rt_theta_bt_prt, file = "scratch/models/brm_m5_5")
+
 ####### Model 6 #######
 # add in p_rt as rand #
 #######################
@@ -146,6 +169,8 @@ m6_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + bloc
 
 save(m6_rt_theta_bt_prt, file = "scratch/models/brm_m6")
 
+# m6 fits a little better than m5, though check with Alasdair to see what he thinks
+
 ####### Model 7 #######
 # add in interaction  #
 #   with block_type   #
@@ -165,9 +190,13 @@ m7_rt_theta_bt_prt <- brm(rt ~ theta + block_type + p_rt + (theta * block_type) 
                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave"),
                                     set_prior("normal(0,1)", class = "b", coef = "block_typerandom:p_rt"),
-                                    set_prior("normal(0,1)", class = "b", ceof = "block_typesinewave:p_rt")),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave:p_rt")),
                           warmup = 1000, iter = 2000, chains = 4, 
                           control = list(adapt_delta = 0.95, max_treedepth = 12))
 
 save(m7_rt_theta_bt_prt, file = "scratch/models/brm_m7")
 
+# this model doesn't really improve the fit beyond m6....
+# so it looks like there is not much of an interaction between block type and 
+# previous response time. However, adding in prt as a main effect (and random 
+# by participant) does improve the fit... quite surprising really.
