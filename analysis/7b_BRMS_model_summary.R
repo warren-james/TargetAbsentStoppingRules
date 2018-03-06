@@ -89,7 +89,7 @@ plot(m4_effects, plot = FALSE)[[3]] +
   ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
   ggplot2::labs(y = "RT", x = "Theta")
 
-#### Model 5 
+#### Model 5 ####
 # Added in a fixed effect of previous response time
 # at the moment, this has not been centred, but from what I've read this seems to happen 
 # automatically within this package
@@ -110,4 +110,21 @@ plot(m5_effects, plot = TRUE)
 # however, I think this makes it clear that we need to centre
 # also, we need to inlcude previous accuracy in this model...
 # need to look at contrasts
+
+#### model 5_5 ####
+# Model with interaction of block type and theta in random effects
+# no model after this one seems to improve fit...
+# maybe need to consider including previous accuracy?
+
+# load model 
+load("scratch/models/brm_m5_5")
+
+# marginal effects 
+m5_5_effects <- marginal_effects(m5_5_rt_theta_bt_prt)
+
+# plot 
+plot(m5_5_effects, plot = FALSE)[[4]] + 
+  ggplot2::ggtitle("Model with interaction of Block type and Difficulty (Theta)") +
+  ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
+  ggplot2::labs(y = "RT", x = "Theta")
 
