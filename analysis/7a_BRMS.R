@@ -133,7 +133,7 @@ save(m5_rt_theta_bt_prt, file = "scratch/models/brm_m5")
 ########################
 
 #### TO RUN ####
-m5_5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + theta + block_type + block_type*theta|participant),
+m5_5_rt_theta_bt_prt <- brm(rt ~ (theta + block_type)^2 + p_rt + (1 + (theta + block_type)^2|participant),
                           data = df, family = lognormal,
                           prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
                                     set_prior("normal(0,1)", class = "b", coef = "p_rt"),
