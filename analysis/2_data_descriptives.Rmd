@@ -17,6 +17,7 @@ knitr::opts_chunk$set(fig.width=12, fig.height=6.5)
 
 ``` {r round the difficulty numbers to one decimal place, include=FALSE}
 df$difficulty <- round(df$difficulty, digits = 1)
+df$p_difficulty <- round(df$p_difficulty, digits = 1)
 ```
 
 ```{r introduce TATP variable}
@@ -103,7 +104,7 @@ trials_total_plt = trials_total_plt + ylab("No. participants")
 
 ```
 
-```{r show graphs}
+```{r show graphs, echo = FALSE}
 trials_per_block_plt
 trials_total_plt
 ```
@@ -136,7 +137,7 @@ median_rt_plot = median_rt_plot + facet_grid(group~targ_pr)
 
 
 Below are plots of the mean and median reaction times separated by group (either RABL or SIBL) and also whether the target was present or absent (1 or 0 respectively). The first graph is the mean reaction times with standard error bars, the second is of the median reaction times. Along the x-axis is the "difficulty" of the trial. Higher numbers mean more variance in the distractors and therefore a more difficult trial. The number relates to how much the distractor line segments could vary about an orientation that was orthogonal to the target item.
-```{r display the mean and median rt graphs}
+```{r display the mean and median rt graphs, echo = FALSE}
 mean_rt_plot
 median_rt_plot
 ```
@@ -162,7 +163,7 @@ mean_acc_plot = mean_acc_plot + facet_grid(group~targ_pr)
 ```
 
 Below are the plots of mean accuracy over different difficulties, block types, and target presence. 
-```{r display the mean accuracy graphs}
+```{r display the mean accuracy graphs, echo = FALSE}
 mean_acc_plot
 ```
 
@@ -193,7 +194,7 @@ density_plot_SIBL = density_plot_SIBL + ggtitle("SIBL group")
 ```
 
 These are the density plots for Target absent and target present responses across groups and the block type. 
-```{r display the density plot}
+```{r display the density plot, echo = FALSE}
 density_plot_RABL
 density_plot_SIBL
 ```
@@ -216,14 +217,14 @@ density_plot_SIBL_diff = density_plot_SIBL_diff + ggtitle("SIBL group")
 
 These are the plots when we distinguish across the different difficulty levels. For the purpose of these graphs, difficulty was treated as a "discrete" factor, but for the modelling this should be a continuous variable instead. I created a different data frame for these graphs so the main data frame (df) should remain unchanged. 
 
-``` {r display the density plots with difficulty as a factor}
+``` {r display the density plots with difficulty as a factor, echo = FALSE}
 density_plot_RABL_diff
 density_plot_SIBL_diff
 ```
 
 We took a look at trial number (across blocks) to look at whether there were any practice effects that may need to be taken account of when creating a model of the data. 
 
-```{r Looking at trial number}
+```{r Looking at trial number, echo = FALSE}
 temp = group_by(df, difficulty, block_type, targ_pr, trial)
 trial_desc_stats = summarise(temp, mean_rt = mean(rt),
                              median_rt = median(rt),
@@ -276,8 +277,17 @@ Difficulty was also changed to be called theta
 #rescale difficulty for the models
 df$theta <- round(df$difficulty/pi, digits = 3) 
 
+# rescale p_difficulty
+df$p_theta <- round(df$p_difficulty/pi, digits = 3)
+
 # create a centred version 
 df$theta_c <- df$theta - mean(df$theta)
+```
+
+A new variable was created using current and previous theta. This is to reflect how much change there was from trial to trial in terms of the difficulty. Negative numbers mean the current trail is easier than the previous, positive means the current trial is harder than the previous. 
+
+``` {r Get comparison of current trial to previous}
+df$change_th <- df$theta - df$p_theta
 ```
 
 We created dummy variables for the contrasts between block_type. Blocked being 0
@@ -373,3 +383,6 @@ Remembering that we are operating on a log scale, we need to change the values s
 Anna's data suggests that at the easiest difficulty, the mean was `r anna_a_easy` (sd = `r anna_a_easy_sd`) for the easiest trials. For the hard trials it was `r anna_a_hard` (SD = `r anna_a_hard_sd`). 
 
 For our model, we should set the intercept value (or $a$ in the model) to be the log(`r anna_a_easy`)  which is `r round(log_a_easy, digits = 3)`. As for the $\sigma$ component of $a$ ~ dnorm(`r round(log_a_easy, digits = 3)`, $\sigma$), this can be set to 1 as this gives a resonable range for RTs.
+
+## PRT parameter
+This doesn't seem to help the fit of the model when added as an interaction with block_type. However, this could be because the changes in what the previous trial's difficulty was, so we should think about how to do this? As a categorical variable (i.e. the current trial is easier than the previous etc?), or as a continuous variable (i.e. the difference between current theta and previous theta?)

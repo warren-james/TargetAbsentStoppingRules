@@ -207,11 +207,12 @@ df$correct[df$key == "r" & df$targ_pr == 0] <- 1
 df$rt[df$key == "x"] <- NA
 
 
-#### extract previous rt and accuracy ####
+#### extract previous rt, difficulty and accuracy ####
 
 
 df$p_rt = NA
 df$p_correct = NA
+df$p_difficulty = NA
 
 for (g in levels(df$group)) {
   for  (person in unique(df$participant[df$group == g])){
@@ -224,6 +225,8 @@ for (g in levels(df$group)) {
           d$p_rt[2:nrow(d)] = d$rt[1:(nrow(d)-1)]
           # add in previous correct
           d$p_correct[2:nrow(d)] = d$correct[1:(nrow(d)-1)]
+          # add in previous difficulty
+          d$p_difficulty[2:nrow(d)] = d$difficulty[1:nrow(d)-1]
             
           # add back into main dataframe
           df[which(df$participant == person & df$group == g & df$block_type == bt & df$block == blk),] <- d
@@ -260,6 +263,7 @@ df <- select(df,
 	rt, 
 	p_rt,
 	p_correct,
+	p_difficulty,
 	site, 
 	group)
 
