@@ -318,7 +318,7 @@ rm(list=ls()[!(ls() %in% c("df","df_correct_only"))])
 
 # Save only the new data frame
 save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
-````
+```
 
 ``` {r working on density plots for TA trials as a probability of TP rt's}
 # needs to use only correct trials... so we can filter those out here, or use the stuff from before but either way it needs to be done.
@@ -359,6 +359,45 @@ save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 # 
 # # plot this 
 # TA_temp_plt <- ggplot(participant1_1_TA, aes(pnormRT)) + geom_density()
+# Could use a loop and save a bunch of plots? But that doesn't really help with displaying it here... maybe we don't want to? Or we want to do it by condition and not participant?
+# Might need to use the paste() function to get this to work
+# maybe make a function then we can add the output to a file later for 
+# the plotting?
+
+# This gets all the pnormRT data and can be passed through a loop to get it for each participant
+# The plotting can happen in the loop or outside the loop, but we'll see how that goes...
+# in the for loop, we'll want to create a filename for the ggsave part
+
+# before running this, we need to make sure there are empty columns to add into
+df$logrt = NA
+df$pnormRT = NA
+
+prob_data <- function(df, p, th){
+  # choose one participant
+  d <- df[df$participant == p,]
+  
+  # choose difficulty
+  d <- d[d$difficulty == th,]
+  
+  # get log of rt 
+  d$logrt <- log(d$rt)
+  
+  # get mean & sd logrt for TP trials
+  mu <- mean(d$logrt[d$TATP == "TP"])
+  sig <- sd(d$logrt[d$TATP == "TP"])
+  
+  # pnorm on logrt
+  d$pnormRT <- pnorm(d$logrt, mu, sig)
+  
+  # make plot
+  # plt <- ggplot(d, aes(pnormRT, colour = TATP)) + geom_density()
+  # plt
+  
+  # add into data frame 
+  # this might need to do into the loop instead, but I'm not sure how to output anything 
+  # df[which(df$participant == p & df$difficulty == th),] <- d
+  # return(d) # Think this would work in a for loop, but I'm not sure...
+}
 ```
 
 # Working on TA trials only

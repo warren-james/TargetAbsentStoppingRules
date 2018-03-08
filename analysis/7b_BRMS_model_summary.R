@@ -128,3 +128,18 @@ plot(m5_5_effects, plot = FALSE)[[4]] +
   ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
   ggplot2::labs(y = "RT", x = "Theta")
 
+#### Model 8 ####
+# This has the change_th in there, so might be more interesting
+# Adding change_th as a fixed effect doesn't seem to help the model fit that much better than
+# model 4... should try with the interaction as this will probably be more revealing...
+
+# load model 
+load("scratch/models/brm_m8")
+
+# marginal effects 
+m8_effects <- marginal_effects(m8_rt_theta_bt_cht)
+
+# make plot 
+plot(m8_effects, plot = TRUE)
+
+
