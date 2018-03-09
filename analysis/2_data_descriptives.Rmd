@@ -320,57 +320,7 @@ rm(list=ls()[!(ls() %in% c("df","df_correct_only"))])
 save(df, df_correct_only, file = "scratch/processed_data_nar.rda")
 ```
 
-``` {r working on density plots for TA trials as a probability of TP rt's}
-# needs to use only correct trials... so we can filter those out here, or use the stuff from before but either way it needs to be done.
-# below is just a template of how it is done and can be adapted to work for every participant and condition.
-# # pick participant
-# participant1 <- df[df$participant == 1,]
-# 
-# # pick difficulty
-# participant1_1 <- participant1[participant1$difficulty == 1,]
-# 
-# # only TP trials
-# participant1_1_TP <- participant1_1[participant1_1$TATP == "TP",]
-# 
-# # log transform rt
-# participant1_1_TP$logrt <- log(participant1_1_TP$rt)
-# 
-# # log2
-# participant1_1_TP$log2rt <- log2(participant1_1_TP$rt)
-# 
-# # log10
-# participant1_1_TP$log10rt <- log10(participant1_1_TP$rt)
-# 
-# # temp plot to check 
-# temp_plt_log <- ggplot(participant1_1_TP, aes(logrt)) + geom_density()
-# temp_plt_log2 <- ggplot(participant1_1_TP, aes(log2rt)) + geom_density()
-# temp_plt_log10 <- ggplot(participant1_1_TP, aes(log10rt)) + geom_density()
-# 
-# # now get the pnorm of TA trials
-# participant1_1_TA <- participant1_1[participant1_1$TATP == "TA",]
-# 
-# # get logrt 
-# participant1_1_TA$logrt <- log(participant1_1_TA$rt)
-# 
-# # pnorm() function applied
-# participant1_1_TA$pnormRT <- pnorm(participant1_1_TA$logrt,
-#                                    mean(participant1_1_TP$logrt),
-#                                    sd(participant1_1_TP$logrt))
-# 
-# # plot this 
-# TA_temp_plt <- ggplot(participant1_1_TA, aes(pnormRT)) + geom_density()
-# Could use a loop and save a bunch of plots? But that doesn't really help with displaying it here... maybe we don't want to? Or we want to do it by condition and not participant?
-# Might need to use the paste() function to get this to work
-# maybe make a function then we can add the output to a file later for 
-# the plotting?
-
-# This gets all the pnormRT data and can be passed through a loop to get it for each participant
-# The plotting can happen in the loop or outside the loop, but we'll see how that goes...
-# in the for loop, we'll want to create a filename for the ggsave part
-
-# before running this, we need to make sure there are empty columns to add into
-df$logrt = NA
-df$pnormRT = NA
+``` {r working on density plots for TA trials as a probability of TP rts, include = FALSE}
 
 prob_data <- function(df, p, th){
   # choose one participant
@@ -389,14 +339,37 @@ prob_data <- function(df, p, th){
   # pnorm on logrt
   d$pnormRT <- pnorm(d$logrt, mu, sig)
   
-  # make plot
-  # plt <- ggplot(d, aes(pnormRT, colour = TATP)) + geom_density()
-  # plt
-  
   # add into data frame 
-  # this might need to do into the loop instead, but I'm not sure how to output anything 
-  # df[which(df$participant == p & df$difficulty == th),] <- d
-  # return(d) # Think this would work in a for loop, but I'm not sure...
+  return(d) 
+}
+
+# set up the data frame for this part
+# We only want correct trials, so we should use that for now
+# though, we might want to include incorrect trials for the TA part and separate on that?
+df_pnorm <- df_correct_only
+
+# before running this, we need to make sure there are empty columns to add into
+df_pnorm$logrt = NA
+df_pnorm$pnormRT = NA
+
+# now create the loop
+for(th in unique(df_pnorm$difficulty)){
+  for(p in unique(df_pnorm$participant)){
+    d <- prob_data(df_pnorm, p, th)
+    
+    # add into datafram 
+    df_pnorm[which(df_pnorm$participant == p & df_pnorm$difficulty == th),] <- d
+  }
+  # create filename
+  filename <- paste("scratch/plots/diff_", th, "_probability_plots.pdf", sep = "")
+  
+  # make the plot 
+  plt = ggplot(df_pnorm[df_pnorm$difficulty == th,], aes(pnormRT, colour = TATP))
+  plt = plt + geom_density(alpha = 1)
+  plt = plt + scale_y_continuous(limits = c(0,9))
+  plt = plt + facet_wrap(~participant)
+  plt
+  ggsave(filename, height = 10, width = 8)
 }
 ```
 
