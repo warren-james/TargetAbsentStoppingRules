@@ -281,4 +281,48 @@ save(m9_rt_theta_bt_cht, file = "scratch/models/brm_m9")
 # This change doesn't look like it gives any clear explanation of what's going on..
 # maybe because it's correlated with prt?
 
+###### Model 9.5 #######
+# only the interaction # 
+#~~~~~~~~~~~~~~~~~~~~~~#
+m9_5_rt_theta_bt_cht <- brm(rt ~ (theta + block_type)^2 + block_type:change_th+ 
+                             (1 + theta + block_type + change_th + theta*block_type|participant),
+                           data = df, family = lognormal,
+                           prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                     set_prior("normal(0.55,1)", class = "Intercept"),
+                                     set_prior("cauchy(0,1.5)", class = "sd"),
+                                     set_prior("lkj(2)", class = "cor"),
+                                     set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                     set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                     set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave"),
+                                     set_prior("normal(0,1)", class = "b", coef = "block_typeblocked:change_th"),
+                                     set_prior("normal(0,1)", class = "b", coef = "block_typerandom:change_th"),
+                                     set_prior("normal(0,1)", class = "b", coef = "block_typesinewave:change_th")),
+                           warmup = 1000, iter = 2000, chains = 4, 
+                           control = list(adapt_delta = 0.95, max_treedepth = 12))
+
+save(m9_5_rt_theta_bt_cht, file = "scratch/models/brm_m9_5")
+
 #### Model 10 ####
+#   add in prt   #
+#~~~~~~~~~~~~~~~~#
+
+m10_rt_theta_bt_cht <- brm(rt ~ (theta + block_type)^2 + block_type*change_th + p_rt + 
+                            (1 + theta + block_type + change_th + theta*block_type|participant),
+                          data = df, family = lognormal,
+                          prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
+                                    set_prior("normal(0,1)", class = "b", coef = "change_th"),
+                                    set_prior("normal(0,1)", class = "b", coef = "p_rt"),
+                                    set_prior("normal(0.55,1)", class = "Intercept"),
+                                    set_prior("cauchy(0,1.5)", class = "sd"),
+                                    set_prior("lkj(2)", class = "cor"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typerandom"),
+                                    set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typerandom:change_th"),
+                                    set_prior("normal(0,1)", class = "b", coef = "block_typesinewave:change_th")),
+                          warmup = 1000, iter = 2000, chains = 4, 
+                          control = list(adapt_delta = 0.95, max_treedepth = 12))
+
+save(m10_rt_theta_bt_cht, file = "scratch/models/brm_m10")
