@@ -186,3 +186,23 @@ m10_effects <- marginal_effects(m10_rt_theta_bt_cht)
 # make plot 
 plot(m10_effects, plot = TRUE)
 
+#### Model 11 ####
+
+# load model
+load("scratch/models/brm_m11")
+
+# marginal effects 
+m11_effects <- marginal_effects(m11_rt_theta_bt_cht)
+
+# make plots
+# Theta:block_type
+plot(m11_effects, plot = FALSE)[[4]] + 
+  ggplot2::ggtitle("Model with interaction of Block type and Difficulty (Theta)") +
+  ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
+  ggplot2::labs(y = "RT", x = "Theta", fill = "Block Type", colour = "Block Type")
+
+# change_th:blcok_type
+plot(m11_effects, plot = FALSE)[[5]] + 
+  ggplot2::ggtitle("Model of RTs by Change in Difficulty (Theta)") +
+  ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
+  ggplot2::labs(y = "RT", x = "Change in Theta", fill = "Block Type", colour = "Block Type")
