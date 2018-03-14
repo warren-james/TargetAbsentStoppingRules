@@ -365,10 +365,9 @@ save(m11_rt_theta_bt_cht, file = "scratch/models/brm_m11")
 # This effect would be weird to model
 
 m12_rt_theta_bt_cht <- brm(rt ~ (theta + block_type)^2 + block_type:change_th + theta:p_rt + 
-                             (1 + theta + block_type + change_th + theta*block_type|participant),
+                             (1 + theta + block_type + block_type:change_th + theta*block_type|participant),
                            data = df, family = lognormal,
                            prior = c(set_prior("normal(1,1.5)", class = "b", coef = "theta"),
-                                     set_prior("normal(0,1)", class = "b", coef = "change_th"),
                                      set_prior("normal(0.55,1)", class = "Intercept"),
                                      set_prior("cauchy(0,1.5)", class = "sd"),
                                      set_prior("lkj(2)", class = "cor"),
@@ -378,7 +377,8 @@ m12_rt_theta_bt_cht <- brm(rt ~ (theta + block_type)^2 + block_type:change_th + 
                                      set_prior("normal(0,1)", class = "b", coef = "theta:block_typesinewave"),
                                      set_prior("normal(0,1)", class = "b", coef = "block_typerandom:change_th"),
                                      set_prior("normal(0,1)", class = "b", coef = "block_typesinewave:change_th"),
-                                     set_prior("normal(0,1)", class = "b", coef = "change_th:p_rt")),
+                                     set_prior("normal(0,0.1)", class = "b", coef = "block_typeblocked:change_th"), 
+                                     set_prior("normal(0,1)", class = "b", coef = "theta:p_rt")),
                            warmup = 1000, iter = 2000, chains = 4, 
                            control = list(adapt_delta = 0.95, max_treedepth = 12))
 
