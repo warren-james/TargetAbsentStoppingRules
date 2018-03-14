@@ -142,4 +142,47 @@ m8_effects <- marginal_effects(m8_rt_theta_bt_cht)
 # make plot 
 plot(m8_effects, plot = TRUE)
 
+#### Model 9 ####
+# Adds in the interaction of block_type and change_th 
+# still includes the main effect of change_th... so we should check 
+# model9_5 as well
+
+# load model
+load("scratch/models/brm_m9")
+
+# marginal effects 
+m9_effects <- marginal_effects(m9_rt_theta_bt_cht)
+
+# make plot 
+plot(m9_effects, plot = TRUE)
+
+#### Model 9_5 ####
+# this has change_th:block_type
+# This doesn't fit much better, so including the main effect is
+# probably fine as well
+
+# load model
+load("scratch/models/brm_m9_5")
+
+# marginal effects 
+m9_5_effects <- marginal_effects(m9_5_rt_theta_bt_cht)
+
+# make plot 
+plot(m9_5_effects, plot = TRUE)
+
+#### Model 10 ####
+# Has block_type*change_th
+# added in prt now
+# no interaction of prt and change_th just yet, that is in model 11
+# should compare this to model 6 at some point to see how adding 
+# main effect of change_th helps?
+
+# load model
+load("scratch/models/brm_m10")
+
+# marginal effects 
+m10_effects <- marginal_effects(m10_rt_theta_bt_cht)
+
+# make plot 
+plot(m10_effects, plot = TRUE)
 
