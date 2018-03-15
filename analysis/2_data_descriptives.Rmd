@@ -123,10 +123,26 @@ desc_stats = summarise(temp, mean_rt = mean(rt),
                              lower_median = median_rt - se)
 rm(temp)
 
+# add in better titles for plots
+# initialise empty column 
+desc_stats$group2 <- NA
+desc_stats$targ_pr2 <- NA
+
+# fill it in
+desc_stats$group2[desc_stats$group == "RABL"] <- "Random/Blocked"
+desc_stats$group2[desc_stats$group == "SIBL"] <- "Sinewave/Blocked"
+
+desc_stats$targ_pr2[desc_stats$targ_pr == 1] <- "Present"
+desc_stats$targ_pr2[desc_stats$targ_pr == 0] <- "Absent"
+
+
 mean_rt_plot = ggplot(desc_stats, aes(difficulty, mean_rt, colour = block_type))
-mean_rt_plot = mean_rt_plot + geom_point()
+mean_rt_plot = mean_rt_plot + geom_point() + geom_line()
 mean_rt_plot = mean_rt_plot + geom_errorbar(aes(ymin = lower_mean, ymax = upper_mean))
-mean_rt_plot = mean_rt_plot + facet_grid(group~targ_pr)
+mean_rt_plot = mean_rt_plot + labs(title = "Mean response times accross difficulty for target present and absent trials",
+                                   x = "Difficulty", y = "Response Times (seconds)",
+                                   colour = "Block Type")
+mean_rt_plot = mean_rt_plot + facet_grid(targ_pr2~group2)
 
 median_rt_plot = ggplot(desc_stats, aes(difficulty, median_rt, colour = block_type))
 median_rt_plot = median_rt_plot + geom_point()
@@ -155,11 +171,24 @@ desc_stats_acc = summarise(temp, mean_correct = mean(correct),
                                  lower_median = median_correct - se)
 rm(temp)
 
+# add in better titles for plots
+# initialise empty column 
+desc_stats_acc$group2 <- NA
+desc_stats_acc$targ_pr2 <- NA
+
+# fill it in
+desc_stats_acc$group2[desc_stats_acc$group == "RABL"] <- "Random/Blocked"
+desc_stats_acc$group2[desc_stats_acc$group == "SIBL"] <- "Sinewave/Blocked"
+
+desc_stats_acc$targ_pr2[desc_stats_acc$targ_pr == 1] <- "Present"
+desc_stats_acc$targ_pr2[desc_stats_acc$targ_pr == 0] <- "Absent"
+
+
 mean_acc_plot = ggplot(desc_stats_acc, aes(difficulty, mean_correct, colour = block_type))
-mean_acc_plot = mean_acc_plot + geom_point()
+mean_acc_plot = mean_acc_plot + geom_point() + geom_line()
 mean_acc_plot = mean_acc_plot + geom_errorbar(aes(ymin = lower_mean, ymax = upper_mean))
-mean_acc_plot = mean_acc_plot + labs(x = "Difficulty", y = "Proportion correct responses", title = "Average Accuracy in Target present (1) and Target Absent (0) trials.")
-mean_acc_plot = mean_acc_plot + facet_grid(group~targ_pr)
+mean_acc_plot = mean_acc_plot + labs(x = "Difficulty", y = "Proportion correct responses", title = "Average Accuracy in Target present and Target Absent trials across difficulty.", colour = "Block Type")
+mean_acc_plot = mean_acc_plot + facet_grid(group2~targ_pr2)
 
 ```
 
