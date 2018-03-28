@@ -188,7 +188,7 @@ mean_acc_plot = ggplot(desc_stats_acc, aes(difficulty, mean_correct, colour = bl
 mean_acc_plot = mean_acc_plot + geom_point() + geom_line()
 mean_acc_plot = mean_acc_plot + geom_errorbar(aes(ymin = lower_mean, ymax = upper_mean))
 mean_acc_plot = mean_acc_plot + labs(x = "Difficulty", y = "Proportion correct responses", title = "Average Accuracy in Target present and Target Absent trials across difficulty.", colour = "Block Type")
-mean_acc_plot = mean_acc_plot + facet_grid(group2~targ_pr2)
+mean_acc_plot = mean_acc_plot + facet_grid(targ_pr2~group2)
 
 ```
 

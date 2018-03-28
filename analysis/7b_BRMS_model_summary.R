@@ -206,8 +206,16 @@ plot(m10_5_effects, plot = FALSE)[[4]] +
 # block_type:change_th
 plot(m10_5_effects, plot = FALSE)[[5]] + 
   ggplot2::ggtitle("Model of RTs by Change in Difficulty (Theta)") +
-  ggplot2::theme(plot.title = element_text(hjust = 0.5)) + 
-  ggplot2::labs(y = "RT", x = "Change in Theta", fill = "Block Type", colour = "Block Type")
+  ggplot2::theme(plot.title = element_text(hjust = 0.5)) +
+#  ggplot2::scale_fill_brewer(breaks=c("random","sinewave"), palette = "Set1") + 
+#  ggplot2::scale_color_brewer(breaks=c("random","sinewave"), palette = "Set1") +
+#  ggplot2::scale_fill_manual(breaks=c("random","sinewave"), values=c("red", "blue", "green")) +
+#  ggplot2::scale_colour_manual(breaks=c("random","sinewave"), values=c("red", "blue", "green")) + 
+#  ggplot2::scale_colour_discrete(breaks=c("random","sinewave")) + 
+#  ggplot2::scale_fill_discrete(breaks=c("random","sinewave")) + 
+#  ggplot2::scale_size(guide = "none") +
+  ggplot2::labs(y = "RT", x = "Change in Theta", fill = "Block Type", colour = "Block Type") +
+  ggplot2::lims(colour = c("random","sinewave"), fill = c("random","sinewave"))
 
 #### Model 11 ####
 
